@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, CheckCircle, RotateCcw } from 'lucide-react';
-import { MEMORY_GRID_SIZE, MEMORY_ROUNDS, MEMORY_SHOW_MS } from '@/lib/constants';
+import { MEMORY_GRID_SIZE, MEMORY_ROUNDS, MEMORY_ROUND3_PHASES, MEMORY_SHOW_MS, MEMORY_SHOW_MS_R3 } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
 interface StageProps {
@@ -21,28 +21,46 @@ export default function StageMemory({ onComplete }: StageProps) {
   const [wrongCells, setWrongCells] = useState<Set<number>>(new Set());
   const [countdown, setCountdown] = useState(Math.ceil(MEMORY_SHOW_MS / 1000));
   const [attempts, setAttempts] = useState(0);
+  // Round 3 전용: 0 = 첫 번째 플래시, 1 = 두 번째 플래시
+  const [memFlash, setMemFlash] = useState(0);
 
   const correctSet = MEMORY_ROUNDS[round];
   const requiredCount = correctSet.length;
 
+  // 현재 memorize 단계에서 보여줄 셀 인덱스 목록
+  const currentMemorizeCells =
+    round === 2
+      ? MEMORY_ROUND3_PHASES[memFlash as 0 | 1]
+      : MEMORY_ROUNDS[round];
+
+  const showMs = round === 2 ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
+
   const startRound = useCallback((r: number) => {
+    const ms = r === 2 ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
     setRound(r);
     setSelected(new Set());
     setWrongCells(new Set());
+    setMemFlash(0);
     setPhase('memorize');
-    setCountdown(Math.ceil(MEMORY_SHOW_MS / 1000));
+    setCountdown(Math.ceil(ms / 1000));
   }, []);
 
   // 카운트다운 (memorize 단계)
   useEffect(() => {
     if (phase !== 'memorize') return;
     if (countdown <= 0) {
-      setPhase('recall');
+      // Round 3: 첫 번째 플래시 종료 → 두 번째 플래시로 전환
+      if (round === 2 && memFlash === 0) {
+        setMemFlash(1);
+        setCountdown(Math.ceil(MEMORY_SHOW_MS_R3 / 1000));
+      } else {
+        setPhase('recall');
+      }
       return;
     }
     const id = setInterval(() => setCountdown((c) => c - 1), 1000);
     return () => clearInterval(id);
-  }, [phase, countdown]);
+  }, [phase, countdown, round, memFlash]);
 
   // 셀 클릭 (recall 단계)
   const handleCellClick = (idx: number) => {
@@ -123,9 +141,17 @@ export default function StageMemory({ onComplete }: StageProps) {
           <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="text-center space-y-4">
             <p className="text-green-500 tracking-widest">라운드 {round + 1} 준비 완료</p>
-            <p className="text-green-700 text-sm tracking-widest">
-              {requiredCount}개의 칸이 {MEMORY_SHOW_MS / 1000}초간 표시됩니다
-            </p>
+            {round === 2 ? (
+              <p className="text-yellow-500 text-sm tracking-widest leading-relaxed">
+                ⚠ CAUTION: {requiredCount}개의 칸이<br />
+                <span className="text-yellow-400 font-bold">2회 분할 플래시</span>로 표시됩니다<br />
+                <span className="text-green-700">각 플래시 {MEMORY_SHOW_MS_R3 / 1000}초 — 모두 기억하라</span>
+              </p>
+            ) : (
+              <p className="text-green-700 text-sm tracking-widest">
+                {requiredCount}개의 칸이 {showMs / 1000}초간 표시됩니다
+              </p>
+            )}
             <button
               onClick={() => startRound(round)}
               className="px-8 py-3 border-2 border-green-400 text-green-400 text-glow
@@ -136,9 +162,11 @@ export default function StageMemory({ onComplete }: StageProps) {
           </motion.div>
         )}
         {isMemorize && (
-          <motion.p key="memorize" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          <motion.p key={`memorize-${round}-${memFlash}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="text-green-400 text-glow text-lg tracking-[0.4em] font-bold animate-pulse">
-            MEMORIZING... {countdown}s
+            {round === 2
+              ? `FLASH ${memFlash + 1}/2 — MEMORIZING... ${countdown}s`
+              : `MEMORIZING... ${countdown}s`}
           </motion.p>
         )}
         {isRecall && (
@@ -174,7 +202,8 @@ export default function StageMemory({ onComplete }: StageProps) {
         style={{ gridTemplateColumns: `repeat(${MEMORY_GRID_SIZE}, minmax(0, 1fr))` }}
       >
         {Array.from({ length: TOTAL_CELLS }).map((_, idx) => {
-          const isTarget = MEMORY_ROUNDS[round].includes(idx);
+          const isTarget = currentMemorizeCells.includes(idx);
+          const isFullTarget = MEMORY_ROUNDS[round].includes(idx);
           const isSelected = selected.has(idx);
           const isWrong = wrongCells.has(idx);
 
@@ -186,7 +215,7 @@ export default function StageMemory({ onComplete }: StageProps) {
             else cellStyle = 'border-green-900 bg-black hover:border-green-700 cursor-pointer';
           } else if (phase === 'wrong') {
             if (isWrong) cellStyle = 'border-red-500 bg-red-950/60 cursor-default';
-            else if (isTarget && isSelected) cellStyle = 'border-green-400 bg-green-950 cursor-default';
+            else if (isFullTarget && isSelected) cellStyle = 'border-green-400 bg-green-950 cursor-default';
             else cellStyle = 'border-green-950 bg-black cursor-default';
           }
 

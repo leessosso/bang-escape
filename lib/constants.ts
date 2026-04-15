@@ -2,7 +2,7 @@
 export const GAME_DURATION_SEC = 600; // 10분
 
 // ─── Stage 0: Login ──────────────────────────────────────────────
-export const LOGIN_PASSWORD = '721'; // 마 7:21
+export const LOGIN_PASSWORD = '0721'; // 마 7:21
 
 // ─── Stage: Morse Code (Signal Intercept) ────────────────────────
 // 정답: AMEN (모스부호로 표시됨 / 참조표는 현장 QR 코드로 제공)
@@ -35,10 +35,25 @@ export const CORRECT_PHOTO_ORDER: number[] = [0, 1, 2, 3, 4];
 
 // ─── Stage: Memory Matrix ─────────────────────────────────────────
 export const MEMORY_GRID_SIZE = 5; // 5×5 = 25칸
+
+// Round 3은 두 번 분할 플래시: 각 4칸을 1.5초씩 따로 보여줌 (총 8칸 기억)
+// 각 Phase는 행·열이 모두 다른 불규칙 배치 (직선/대각선 패턴 없음)
+//
+// Phase 1:  . X . . .    Phase 2:  X . . . .
+//           . . . . X              . . X . .
+//           . . . . .              . . . . X
+//           . . . X .              . . . . .
+//           X . . . .              . . . X .
+export const MEMORY_ROUND3_PHASES: [number[], number[]] = [
+  [1, 9, 18, 20],   // Phase 1: (0,1)(1,4)(3,3)(4,0)
+  [0, 7, 14, 23],   // Phase 2: (0,0)(1,2)(2,4)(4,3)
+];
+export const MEMORY_SHOW_MS_R3 = 1500; // Round 3 플래시당 표시 시간 (ms)
+
 export const MEMORY_ROUNDS: number[][] = [
-  [0, 3, 6, 10, 12, 16, 19, 24],   // Round 1: 8칸
-  [1, 4, 7,  9, 14, 17, 20, 23],   // Round 2: 8칸
-  [2, 5, 8, 11, 13, 18, 21, 22],   // Round 3: 8칸
+  [0, 3, 6, 10, 12, 16, 19, 24],                                            // Round 1: 8칸
+  [1, 4, 7,  9, 14, 17, 20, 23],                                            // Round 2: 8칸
+  [...MEMORY_ROUND3_PHASES[0], ...MEMORY_ROUND3_PHASES[1]],                 // Round 3: 10칸 (분할 플래시)
 ];
 export const MEMORY_SHOW_MS = 1000;
 

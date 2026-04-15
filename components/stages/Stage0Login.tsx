@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Terminal } from 'lucide-react';
 import { LOGIN_PASSWORD } from '@/lib/constants';
@@ -18,13 +18,16 @@ const BOOT_LINES = [
   '─────────────────────────────────────',
 ];
 
+const PIN_LENGTH = 4;
+const KEYPAD = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+
 export default function Stage0Login({ onComplete }: StageProps) {
-  const [input, setInput] = useState('');
+  const [digits, setDigits] = useState<string[]>(Array(PIN_LENGTH).fill(''));
+  const [pressedKey, setPressedKey] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'error' | 'success'>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
   const [bootDone, setBootDone] = useState(false);
   const [visibleLines, setVisibleLines] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     let i = 0;
@@ -35,26 +38,109 @@ export default function Stage0Login({ onComplete }: StageProps) {
         clearInterval(id);
         setTimeout(() => {
           setBootDone(true);
-          inputRef.current?.focus();
+          inputRefs.current[0]?.focus();
         }, 300);
       }
     }, 280);
     return () => clearInterval(id);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim() === LOGIN_PASSWORD) {
+  const verify = useCallback((code: string) => {
+    if (code === LOGIN_PASSWORD) {
       setStatus('success');
       playSound.unlock();
       setTimeout(onComplete, 1800);
     } else {
       setStatus('error');
-      setErrorMsg(`ACCESS DENIED: "${input.trim()}" is not valid`);
       playSound.error();
-      setInput('');
-      setTimeout(() => setStatus('idle'), 2000);
+      setTimeout(() => {
+        setStatus('idle');
+        setDigits(Array(PIN_LENGTH).fill(''));
+        inputRefs.current[0]?.focus();
+      }, 1500);
     }
+  }, [onComplete]);
+
+  const handleChange = (index: number, value: string) => {
+    const digit = value.replace(/[^0-9]/g, '').slice(-1);
+    const next = [...digits];
+    next[index] = digit;
+    setDigits(next);
+
+    if (digit && index < PIN_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    if (digit && index === PIN_LENGTH - 1) {
+      const code = next.join('');
+      if (code.length === PIN_LENGTH) {
+        setTimeout(() => verify(code), 100);
+      }
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      if (digits[index]) {
+        const next = [...digits];
+        next[index] = '';
+        setDigits(next);
+      } else if (index > 0) {
+        const next = [...digits];
+        next[index - 1] = '';
+        setDigits(next);
+        inputRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === 'ArrowLeft' && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    } else if (e.key === 'ArrowRight' && index < PIN_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeypadPress = useCallback((key: string) => {
+    if (status !== 'idle') return;
+
+    setPressedKey(key);
+    setTimeout(() => setPressedKey(null), 150);
+
+    if (key === '⌫') {
+      setDigits((prev) => {
+        const next = [...prev];
+        const lastFilled = [...next].map((d, i) => (d ? i : -1)).filter(i => i >= 0);
+        if (lastFilled.length === 0) return next;
+        const idx = lastFilled[lastFilled.length - 1];
+        next[idx] = '';
+        inputRefs.current[idx]?.focus();
+        return next;
+      });
+      return;
+    }
+
+    setDigits((prev) => {
+      const next = [...prev];
+      const emptyIdx = next.findIndex((d) => d === '');
+      if (emptyIdx === -1) return prev;
+      next[emptyIdx] = key;
+      inputRefs.current[Math.min(emptyIdx + 1, PIN_LENGTH - 1)]?.focus();
+      if (emptyIdx === PIN_LENGTH - 1) {
+        const code = next.join('');
+        setTimeout(() => verify(code), 100);
+      }
+      return next;
+    });
+  }, [status, verify]);
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
+    if (!pasted) return;
+    const next = Array(PIN_LENGTH).fill('');
+    pasted.split('').forEach((ch, i) => { next[i] = ch; });
+    setDigits(next);
+    const focusIdx = Math.min(pasted.length, PIN_LENGTH - 1);
+    inputRefs.current[focusIdx]?.focus();
+    if (pasted.length === PIN_LENGTH) setTimeout(() => verify(pasted), 100);
   };
 
   return (
@@ -103,7 +189,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
           {!bootDone && <span className="animate-blink text-green-400">▋</span>}
         </div>
 
-        {/* Input area */}
+        {/* PIN input area */}
         <AnimatePresence>
           {bootDone && status !== 'success' && (
             <motion.div
@@ -112,26 +198,74 @@ export default function Stage0Login({ onComplete }: StageProps) {
               transition={{ duration: 0.4 }}
               className="space-y-4"
             >
-              <form onSubmit={handleSubmit} className="flex items-center gap-4">
-                <span className="text-green-500 text-xl font-bold shrink-0">&gt;_</span>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder="ENTER ACCESS CODE"
-                  maxLength={10}
-                  className="terminal-input w-full text-2xl tracking-[0.5em] placeholder:text-green-900 placeholder:text-base"
-                  autoComplete="off"
-                />
-                <button
-                  type="submit"
-                  className="shrink-0 px-5 py-2 border border-green-500 text-green-400 text-glow
-                             hover:bg-green-500 hover:text-black transition-all font-bold tracking-widest text-sm"
-                >
-                  AUTH
-                </button>
-              </form>
+              <p className="text-green-600 text-xs tracking-[0.3em] text-center">
+                ENTER 4-DIGIT ACCESS CODE
+              </p>
+
+              {/* PIN boxes + Keypad side by side */}
+              <div className="flex items-center justify-center gap-8">
+
+                {/* 4-digit PIN boxes (세로 배치) */}
+                <div className="flex flex-col gap-3">
+                  {digits.map((digit, i) => (
+                    <motion.div
+                      key={i}
+                      animate={status === 'error' ? { x: [0, -6, 6, -6, 6, 0] } : {}}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <input
+                        ref={(el) => { inputRefs.current[i] = el; }}
+                        type="text"
+                        inputMode="numeric"
+                        value={digit}
+                        onChange={(e) => handleChange(i, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(i, e)}
+                        onPaste={handlePaste}
+                        maxLength={2}
+                        className={`
+                          w-16 h-16 text-center text-3xl font-bold
+                          border-2 bg-black/80 outline-none
+                          transition-all duration-150 cursor-text
+                          ${status === 'error'
+                            ? 'border-red-500 text-red-400'
+                            : digit
+                              ? 'border-green-400 text-green-300 text-glow'
+                              : 'border-green-800 text-green-400 focus:border-green-400'
+                          }
+                        `}
+                        autoComplete="off"
+                        style={{ caretColor: 'transparent' }}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Keypad */}
+                <div className="grid grid-cols-3 gap-2 w-52">
+                  {KEYPAD.map((key, i) => (
+                    <motion.button
+                      key={i}
+                      onClick={() => key && handleKeypadPress(key)}
+                      disabled={!key || status !== 'idle'}
+                      animate={pressedKey === key ? { scale: 0.88 } : { scale: 1 }}
+                      transition={{ duration: 0.1 }}
+                      className={`
+                        h-14 text-xl font-bold border tracking-widest
+                        transition-colors duration-100 select-none
+                        ${!key ? 'invisible' : ''}
+                        ${key === '⌫'
+                          ? 'border-green-900 text-green-600 hover:border-green-600 hover:text-green-400 hover:bg-green-950/40'
+                          : 'border-green-900 text-green-400 hover:border-green-400 hover:bg-green-950/60 hover:text-glow'
+                        }
+                        ${pressedKey === key ? 'bg-green-900/60 border-green-400' : 'bg-black/60'}
+                        ${status === 'error' ? 'border-red-900 text-red-700 pointer-events-none' : ''}
+                      `}
+                    >
+                      {key}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
 
               {/* Error message */}
               <AnimatePresence>
@@ -142,10 +276,9 @@ export default function Stage0Login({ onComplete }: StageProps) {
                     exit={{ opacity: 0 }}
                     className="border border-red-800 bg-red-950/40 p-3"
                   >
-                    <p className="text-red-400 text-glow-red text-sm tracking-widest font-bold">
-                      ⚠ SECURITY BREACH DETECTED
+                    <p className="text-red-400 text-glow-red text-sm tracking-widest font-bold text-center">
+                      ⚠ ACCESS DENIED — INVALID CODE
                     </p>
-                    <p className="text-red-500 text-xs mt-1">{errorMsg}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
