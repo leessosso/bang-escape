@@ -20,6 +20,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { PHOTO_COUNT, CORRECT_PHOTO_ORDER } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -117,8 +118,7 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
     if (savedOrder && savedOrder.length === PHOTO_COUNT) return savedOrder;
     return shuffleOrder(PHOTO_COUNT);
   });
-  const [solved, setSolved] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [result, setResult] = useState<'idle' | 'correct' | 'wrong'>('idle');
 
   // 최초 랜덤 순서를 localStorage에 저장
   useEffect(() => {
@@ -133,18 +133,15 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  useEffect(() => {
+  const handleCheck = () => {
     if (arraysEqual(order, CORRECT_PHOTO_ORDER)) {
-      if (!solved) {
-        setSolved(true);
-        setShowSuccess(true);
-        playSound.success();
-      }
+      setResult('correct');
+      playSound.success();
     } else {
-      setSolved(false);
-      setShowSuccess(false);
+      setResult('wrong');
+      playSound.error();
     }
-  }, [order, solved]);
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -154,6 +151,8 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
     const newOrder = arrayMove(order, oldIndex, newIndex);
     setOrder(newOrder);
     onOrderChange?.(newOrder);
+    // 오답 상태에서 다시 드래그하면 오답 메시지 초기화
+    if (result === 'wrong') setResult('idle');
     playSound.beep();
   };
 
@@ -162,13 +161,12 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE 01 // DATA RECOVERY</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow">PHOTO TIMELINE</h2>
-        <p className="text-green-600 text-sm tracking-widest mt-2">
-          &gt; 사진을 <span className="text-green-400">과거 → 최신</span> 순으로 드래그하여 정렬하라
-        </p>
-      </div>
+      <StageHeader
+        badge="STAGE // DATA RECOVERY"
+        icon={<ImageIcon size={28} />}
+        title="PHOTO TIMELINE"
+        subtitle={<>&gt; 사진을 <span className="text-green-400">과거 → 최신</span> 순으로 드래그하여 정렬하라</>}
+      />
 
       {/* Mission text */}
       <div className="border border-green-900 bg-black/60 px-6 py-3 text-sm text-green-500 tracking-widest max-w-xl text-center">
@@ -186,17 +184,17 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
                 id={`photo-${photoNum}`}
                 index={index}
                 photoNum={photoNum}
-                isSolved={solved}
+                isSolved={result === 'correct'}
               />
             ))}
           </div>
         </SortableContext>
       </DndContext>
 
-      {/* Status */}
-      <div className="h-16 flex items-center justify-center">
+      {/* Status / Feedback */}
+      <div className="flex flex-col items-center gap-4">
         <AnimatePresence mode="wait">
-          {showSuccess ? (
+          {result === 'correct' ? (
             <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -217,13 +215,44 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
                 <ChevronRight size={18} />
               </button>
             </motion.div>
-          ) : (
-            <motion.p
-              key="hint"
-              className="text-green-800 text-xs tracking-widest"
+          ) : result === 'wrong' ? (
+            <motion.div
+              key="wrong"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center gap-4"
             >
-              {order.map((n) => `IMG_${String(n + 1).padStart(3, '0')}`).join(' → ')}
-            </motion.p>
+              <p className="text-red-500 text-sm font-bold tracking-[0.3em] text-center">
+                ✗ SEQUENCE ERROR — RECALIBRATE AND RETRY
+              </p>
+              <button
+                onClick={handleCheck}
+                className="flex items-center gap-2 px-8 py-3 border-2 border-green-700
+                           text-green-500 font-bold tracking-widest text-sm
+                           hover:border-green-500 hover:text-green-400 transition-all active:scale-95"
+              >
+                VERIFY SEQUENCE
+                <CheckCircle size={16} />
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="idle"
+              className="flex flex-col items-center gap-4"
+            >
+              <p className="text-green-800 text-xs tracking-widest">
+                {order.map((n) => `IMG_${String(n + 1).padStart(3, '0')}`).join(' → ')}
+              </p>
+              <button
+                onClick={handleCheck}
+                className="flex items-center gap-2 px-8 py-3 border-2 border-green-700
+                           text-green-500 font-bold tracking-widest text-sm
+                           hover:border-green-500 hover:text-green-400 transition-all active:scale-95"
+              >
+                VERIFY SEQUENCE
+                <CheckCircle size={16} />
+              </button>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

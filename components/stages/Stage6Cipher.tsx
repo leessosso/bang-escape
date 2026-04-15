@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, CheckCircle } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { CIPHER_SHIFT, CIPHER_ANSWER, CIPHER_ENCRYPTED } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -32,17 +33,12 @@ export default function StageCipher({ onComplete }: StageProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
-      <div className="text-center space-y-1">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE // ENCRYPTION BYPASS</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow flex items-center gap-3 justify-center">
-          <Lock size={26} />
-          CAESAR CIPHER
-          <Unlock size={26} />
-        </h2>
-        <p className="text-green-600 text-sm tracking-widest">
-          &gt; 암호화된 메시지를 <span className="text-green-400">SHIFT {CIPHER_SHIFT}</span>로 복호화하라
-        </p>
-      </div>
+      <StageHeader
+        badge="STAGE // ENCRYPTION BYPASS"
+        icon={<><Lock size={26} /><Unlock size={26} /></>}
+        title="CAESAR CIPHER"
+        subtitle={<>&gt; 암호화된 메시지를 <span className="text-green-400">SHIFT {CIPHER_SHIFT}</span>로 복호화하라</>}
+      />
 
       {/* Encrypted message */}
       <div className="text-center space-y-4">

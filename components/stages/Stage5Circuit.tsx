@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, ChevronRight, Zap } from 'lucide-react';
+import StageHeader from './StageHeader';
 import {
   CIRCUIT_SOLUTION,
   CIRCUIT_INITIAL_ROTATIONS,
@@ -138,14 +139,12 @@ export default function Stage2Circuit({ onComplete, savedRotations, onRotationsC
   return (
     <div className="flex flex-col items-center justify-center h-full px-4 gap-5">
       {/* Header */}
-      <div className="text-center space-y-1">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE // CIRCUIT RESTORE</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow">ALGORITHM CIRCUIT</h2>
-        <p className="text-green-600 text-sm tracking-widest">
-          &gt; 타일을 클릭해 90° 회전 —{' '}
-          <span className="text-green-400">입구 → 출구</span>를 연결하라
-        </p>
-      </div>
+      <StageHeader
+        badge="STAGE // CIRCUIT RESTORE"
+        icon={<Zap size={28} />}
+        title="ALGORITHM CIRCUIT"
+        subtitle={<>&gt; 타일을 클릭해 90° 회전 — <span className="text-green-400">입구 → 출구</span>를 연결하라</>}
+      />
 
       {/* Grid with entry/exit indicators */}
       {/* IN/OUT는 entry/exit row(row=2) 에 절대 위치로 정렬 */}

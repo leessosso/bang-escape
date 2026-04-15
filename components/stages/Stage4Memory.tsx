@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, CheckCircle, RotateCcw } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { MEMORY_GRID_SIZE, MEMORY_ROUNDS, MEMORY_ROUND3_PHASES, MEMORY_SHOW_MS, MEMORY_SHOW_MS_R3 } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -108,16 +109,12 @@ export default function StageMemory({ onComplete }: StageProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-6">
       {/* Header */}
-      <div className="text-center space-y-1">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE // MEMORY INTEGRITY CHECK</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow flex items-center gap-3 justify-center">
-          <Brain size={28} />
-          MEMORY MATRIX
-        </h2>
-        <p className="text-green-600 text-sm tracking-widest">
-          &gt; 패턴을 <span className="text-green-400">기억</span>하고 정확히 <span className="text-green-400">재현</span>하라
-        </p>
-      </div>
+      <StageHeader
+        badge="STAGE // MEMORY INTEGRITY CHECK"
+        icon={<Brain size={28} />}
+        title="MEMORY MATRIX"
+        subtitle={<>&gt; 패턴을 <span className="text-green-400">기억</span>하고 정확히 <span className="text-green-400">재현</span>하라</>}
+      />
 
       {/* Round indicator */}
       <div className="flex gap-3">

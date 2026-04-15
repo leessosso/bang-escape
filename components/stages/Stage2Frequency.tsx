@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Radio, ChevronUp, ChevronDown, Lock, Unlock, CheckCircle } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { FREQ_TARGETS, FREQ_INITIAL } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -143,17 +144,15 @@ export default function StageFrequency({ onComplete }: StageProps) {
 
   const adjust = (ch: number, delta: number) => {
     if (solved) return;
-    setValues((prev) => {
-      const next = [...prev];
-      next[ch] = (next[ch] + delta + 10) % 10;
-      playSound.beep();
-      if (allLocked(next)) {
-        setSolved(true);
-        playSound.success();
-        setTimeout(onComplete, 2000);
-      }
-      return next;
-    });
+    const next = [...values];
+    next[ch] = (next[ch] + delta + 10) % 10;
+    playSound.beep();
+    setValues(next);
+    if (allLocked(next)) {
+      setSolved(true);
+      playSound.success();
+      setTimeout(onComplete, 2000);
+    }
   };
 
   const lockedCount = values.filter((v, i) => v === FREQ_TARGETS[i]).length;
@@ -161,16 +160,12 @@ export default function StageFrequency({ onComplete }: StageProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-4 gap-5">
       {/* Header */}
-      <div className="text-center space-y-1">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE // FREQUENCY CALIBRATION</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow flex items-center gap-3 justify-center">
-          <Radio size={28} className="animate-pulse" />
-          SIGNAL LOCK
-        </h2>
-        <p className="text-green-600 text-sm tracking-widest">
-          &gt; 4개 채널을 <span className="text-green-400">올바른 주파수</span>로 맞춰 신호를 잠궈라
-        </p>
-      </div>
+      <StageHeader
+        badge="STAGE // FREQUENCY CALIBRATION"
+        icon={<Radio size={28} className="animate-pulse" />}
+        title="SIGNAL LOCK"
+        subtitle={<>&gt; 4개 채널을 <span className="text-green-400">올바른 주파수</span>로 맞춰 신호를 잠궈라</>}
+      />
 
       {/* Status bar — 잠긴 채널 수만 표시, 거리 힌트 없음 */}
       <div className="w-full max-w-3xl flex items-center gap-3 border border-green-900 px-4 py-2 bg-black/60">

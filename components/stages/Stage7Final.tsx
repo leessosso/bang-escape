@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tv, CheckCircle } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { FINAL_CODE } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -108,10 +109,12 @@ export default function Stage3Final({ onComplete }: Stage3Props) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE 03 // FINAL RECOVERY</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow">CCTV RESTORATION</h2>
-      </div>
+      <StageHeader
+        badge="STAGE // FINAL RECOVERY"
+        icon={<Tv size={28} />}
+        title="CCTV RESTORATION"
+        subtitle={<>&gt; 복구 코드를 확인하고 시스템을 <span className="text-green-400">완전히 복원</span>하라</>}
+      />
 
       {/* CCTV Monitor frame */}
       <div className="relative border-4 border-green-800 bg-black overflow-hidden"

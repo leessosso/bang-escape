@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Radio, CheckCircle, QrCode } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { MORSE_ANSWER, MORSE_CODE } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -87,16 +88,12 @@ export default function StageSignal({ onComplete }: StageProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
-      <div className="text-center space-y-1">
-        <p className="text-xs tracking-[0.4em] text-green-600">STAGE // SIGNAL INTERCEPT</p>
-        <h2 className="text-3xl font-bold tracking-[0.25em] text-glow flex items-center gap-3 justify-center">
-          <Radio size={28} className="animate-pulse" />
-          MORSE DECODE
-        </h2>
-        <p className="text-green-600 text-sm tracking-widest">
-          &gt; 수신된 모스 신호를 해독하여 <span className="text-green-400">영단어</span>를 입력하라
-        </p>
-      </div>
+      <StageHeader
+        badge="STAGE // SIGNAL INTERCEPT"
+        icon={<Radio size={28} className="animate-pulse" />}
+        title="MORSE DECODE"
+        subtitle={<>&gt; 수신된 모스 신호를 해독하여 <span className="text-green-400">영단어</span>를 입력하라</>}
+      />
 
       {/* QR 안내 */}
       <div className="flex items-center gap-3 border border-green-800 bg-green-950/20 px-5 py-3 rounded">

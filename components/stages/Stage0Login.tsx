@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Terminal } from 'lucide-react';
+import StageHeader from './StageHeader';
 import { LOGIN_PASSWORD } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
@@ -117,19 +118,21 @@ export default function Stage0Login({ onComplete }: StageProps) {
       return;
     }
 
-    setDigits((prev) => {
-      const next = [...prev];
-      const emptyIdx = next.findIndex((d) => d === '');
-      if (emptyIdx === -1) return prev;
-      next[emptyIdx] = key;
-      inputRefs.current[Math.min(emptyIdx + 1, PIN_LENGTH - 1)]?.focus();
-      if (emptyIdx === PIN_LENGTH - 1) {
-        const code = next.join('');
-        setTimeout(() => verify(code), 100);
-      }
-      return next;
-    });
-  }, [status, verify]);
+    // 함수형 업데이터 밖에서 계산: StrictMode에서 업데이터는 두 번 실행되므로
+    // setTimeout 같은 사이드이펙트는 업데이터 외부에서 처리해야 함
+    const emptyIdx = digits.findIndex((d) => d === '');
+    if (emptyIdx === -1) return;
+
+    const next = [...digits];
+    next[emptyIdx] = key;
+    setDigits(next);
+    inputRefs.current[Math.min(emptyIdx + 1, PIN_LENGTH - 1)]?.focus();
+
+    if (emptyIdx === PIN_LENGTH - 1) {
+      const code = next.join('');
+      setTimeout(() => verify(code), 100);
+    }
+  }, [status, verify, digits]);
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
@@ -161,13 +164,12 @@ export default function Stage0Login({ onComplete }: StageProps) {
 
       <div className="w-full max-w-2xl space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <Shield size={28} className="text-glow" />
-          <div>
-            <p className="text-xs tracking-[0.4em] text-green-600">CLASSIFIED — LEVEL 5</p>
-            <h1 className="text-2xl font-bold tracking-[0.3em] text-glow">SECURITY AUTHENTICATION</h1>
-          </div>
-        </div>
+        <StageHeader
+          badge="STAGE // SYSTEM ACCESS"
+          icon={<Shield size={28} />}
+          title="SECURITY AUTHENTICATION"
+          subtitle={<>&gt; 4자리 인증 코드를 입력하여 <span className="text-green-400">시스템</span>에 접근하라</>}
+        />
 
         {/* Boot terminal */}
         <div className="border border-green-900 bg-black/80 p-5 rounded font-mono text-sm space-y-1 min-h-[160px]">
