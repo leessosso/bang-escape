@@ -1,65 +1,184 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import CRTOverlay from '@/components/CRTOverlay';
+import HUD from '@/components/HUD';
+import GameOver from '@/components/GameOver';
+import MissionComplete from '@/components/MissionComplete';
+import StageTransition from '@/components/StageTransition';
+import { STAGE_REGISTRY } from '@/components/stages';
+import { loadState, saveState, clearState, type GameState } from '@/lib/storage';
+
+export default function EscapeRoomPage() {
+  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [isMissionComplete, setIsMissionComplete] = useState(false);
+
+  // Hydrate from localStorage
+  useEffect(() => {
+    const saved = loadState();
+    setGameState(saved);
+  }, []);
+
+  // Persist to localStorage on change
+  useEffect(() => {
+    if (gameState) saveState(gameState);
+  }, [gameState]);
+
+  const handleStageComplete = useCallback(() => {
+    setGameState((prev) => {
+      if (!prev) return prev;
+      const isLast = prev.currentStage >= STAGE_REGISTRY.length - 1;
+      if (isLast) {
+        // 마지막 스테이지 완료 → 완료 시각 기록
+        setIsMissionComplete(true);
+        return { ...prev, completedAt: Date.now() };
+      }
+      return { ...prev, currentStage: prev.currentStage + 1 };
+    });
+  }, []);
+
+  const handleStageDataChange = useCallback((stageId: number, data: unknown) => {
+    setGameState((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        stageData: { ...prev.stageData, [stageId]: data },
+      };
+    });
+  }, []);
+
+  const handleStart = useCallback(() => {
+    setGameState((prev) => {
+      if (!prev) return prev;
+      if (prev.startedAt) return prev;
+      return { ...prev, startedAt: Date.now() };
+    });
+  }, []);
+
+  const handleTimeUp = useCallback(() => {
+    setIsGameOver(true);
+  }, []);
+
+  const handleRestart = useCallback(() => {
+    clearState();
+    setIsGameOver(false);
+    setIsMissionComplete(false);
+    setGameState({
+      currentStage: 0,
+      startedAt: null,
+      completedAt: null,
+      stageData: {},
+    });
+  }, []);
+
+  // Loading state (hydration)
+  if (!gameState) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-black">
+        <p className="text-green-600 text-sm tracking-[0.4em] animate-pulse">
+          LOADING SYSTEM...
+        </p>
+      </div>
+    );
+  }
+
+  const { currentStage, startedAt, stageData } = gameState;
+  const stageConfig = STAGE_REGISTRY[currentStage] ?? STAGE_REGISTRY[STAGE_REGISTRY.length - 1];
+  const StageComponent = stageConfig.component;
+
+  // Build stage-specific props
+  const stageProps: Record<string, unknown> = {
+    onComplete: handleStageComplete,
+  };
+
+  // Stage 3 = Photos (index 3 in registry)
+  if (currentStage === 3) {
+    stageProps.savedOrder = stageData[3] as number[] | undefined;
+    stageProps.onOrderChange = (order: number[]) => handleStageDataChange(3, order);
+  }
+  // Stage 5 = Circuit (index 5 in registry)
+  if (currentStage === 5) {
+    stageProps.savedRotations = stageData[5] as number[] | undefined;
+    stageProps.onRotationsChange = (rots: number[]) => handleStageDataChange(5, rots);
+  }
+
+  // Start timer on first interaction (Stage 0)
+  if (currentStage === 0 && !startedAt) {
+    const originalOnComplete = stageProps.onComplete as () => void;
+    stageProps.onComplete = () => {
+      handleStart();
+      originalOnComplete();
+    };
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div
+      className="relative h-screen w-screen overflow-hidden bg-black animate-flicker"
+      style={{ fontFamily: "'JetBrains Mono', 'Courier New', monospace" }}
+    >
+      <CRTOverlay />
+
+      {/* HUD — 타이머 시작 후에만 표시 */}
+      {startedAt && !isGameOver && (
+        <HUD
+          startedAt={startedAt}
+          onTimeUp={handleTimeUp}
+          currentStage={currentStage}
+          totalStages={STAGE_REGISTRY.length}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      )}
+
+      {/* Stage progress bar */}
+      {startedAt && (
+        <div className="fixed top-0 left-0 right-0 h-0.5 z-[150] bg-green-950">
+          <div
+            className="h-full bg-green-500 transition-all duration-500"
+            style={{
+              width: `${((currentStage) / (STAGE_REGISTRY.length - 1)) * 100}%`,
+              boxShadow: '0 0 8px #00ff41',
+            }}
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      )}
+
+      {/* Stage label */}
+      <div className="fixed bottom-3 left-3 z-[150] text-green-800 text-[10px] tracking-[0.3em]">
+        {STAGE_REGISTRY.map((s, i) => (
+          <span key={s.id} className={i === currentStage ? 'text-green-500' : ''}>
+            {i === currentStage ? `[${s.label}]` : s.label}
+            {i < STAGE_REGISTRY.length - 1 ? ' → ' : ''}
+          </span>
+        ))}
+      </div>
+
+      {/* Main stage content */}
+      <AnimatePresence mode="wait">
+        {!isGameOver && (
+          <StageTransition stageKey={currentStage}>
+            <div className="h-screen w-screen">
+              <StageComponent {...stageProps} />
+            </div>
+          </StageTransition>
+        )}
+      </AnimatePresence>
+
+      {/* Game Over overlay */}
+      <AnimatePresence>
+        {isGameOver && <GameOver onRestart={handleRestart} />}
+      </AnimatePresence>
+
+      {/* Mission Complete overlay */}
+      <AnimatePresence>
+        {isMissionComplete && gameState.startedAt && gameState.completedAt && (
+          <MissionComplete
+            startedAt={gameState.startedAt}
+            completedAt={gameState.completedAt}
+            onNextTeam={handleRestart}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
