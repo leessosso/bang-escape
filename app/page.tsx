@@ -57,6 +57,13 @@ export default function EscapeRoomPage() {
     });
   }, []);
 
+  // Stage0(Login) 진입 시 즉시 10분 카운트 시작
+  useEffect(() => {
+    if (!gameState) return;
+    if (gameState.currentStage !== 0 || gameState.startedAt) return;
+    handleStart();
+  }, [gameState, handleStart]);
+
   const handleTimeUp = useCallback(() => {
     setIsGameOver(true);
   }, []);
@@ -102,15 +109,6 @@ export default function EscapeRoomPage() {
   if (currentStage === 5) {
     stageProps.savedRotations = stageData[5] as number[] | undefined;
     stageProps.onRotationsChange = (rots: number[]) => handleStageDataChange(5, rots);
-  }
-
-  // Start timer on first interaction (Stage 0)
-  if (currentStage === 0 && !startedAt) {
-    const originalOnComplete = stageProps.onComplete as () => void;
-    stageProps.onComplete = () => {
-      handleStart();
-      originalOnComplete();
-    };
   }
 
   return (
