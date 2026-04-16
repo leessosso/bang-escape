@@ -36,24 +36,31 @@ export const CORRECT_PHOTO_ORDER: number[] = [0, 1, 2, 3, 4];
 // ─── Stage: Memory Matrix ─────────────────────────────────────────
 export const MEMORY_GRID_SIZE = 5; // 5×5 = 25칸
 
-// Round 3은 두 번 분할 플래시: 각 4칸을 1.5초씩 따로 보여줌 (총 8칸 기억)
-// 각 Phase는 행·열이 모두 다른 불규칙 배치 (직선/대각선 패턴 없음)
+// Round 2는 두 번 분할 플래시: 각 4칸을 1.5초씩 따로 보여줌 (총 8칸 기억)
+export const MEMORY_ROUND2_PHASES: [number[], number[]] = [
+  [1, 9, 18, 20],  // Phase 1: (0,1)(1,4)(3,3)(4,0)
+  [0, 7, 14, 23],  // Phase 2: (0,0)(1,2)(2,4)(4,3)
+];
+
+// Round 3은 세 번 분할 플래시: 각 3칸을 1.5초씩 따로 보여줌 (총 9칸 기억)
+// 각 Phase는 단순 직선 패턴을 피한 불규칙 배치
 //
-// Phase 1:  . X . . .    Phase 2:  X . . . .
-//           . . . . X              . . X . .
-//           . . . . .              . . . . X
-//           . . . X .              . . . . .
-//           X . . . .              . . . X .
-export const MEMORY_ROUND3_PHASES: [number[], number[]] = [
-  [1, 9, 18, 20],   // Phase 1: (0,1)(1,4)(3,3)(4,0)
-  [0, 7, 14, 23],   // Phase 2: (0,0)(1,2)(2,4)(4,3)
+// Phase 1:  . X . . .    Phase 2:  . . . X .    Phase 3:  . . . . .
+//           . . . . .              X . . . .              . . X . .
+//           . . . . X              . . . . .              . X . . .
+//           . . . . .              . . . . X              . . . . .
+//           . . X . .              . . . . .              X . . . .
+export const MEMORY_ROUND3_PHASES: [number[], number[], number[]] = [
+  [1, 14, 22],  // Phase 1: (0,1)(2,4)(4,2)
+  [3, 5, 19],   // Phase 2: (0,3)(1,0)(3,4)
+  [7, 11, 20],  // Phase 3: (1,2)(2,1)(4,0)
 ];
 export const MEMORY_SHOW_MS_R3 = 1500; // Round 3 플래시당 표시 시간 (ms)
 
 export const MEMORY_ROUNDS: number[][] = [
   [0, 3, 6, 10, 12, 16, 19, 24],                                            // Round 1: 8칸
-  [1, 4, 7,  9, 14, 17, 20, 23],                                            // Round 2: 8칸
-  [...MEMORY_ROUND3_PHASES[0], ...MEMORY_ROUND3_PHASES[1]],                 // Round 3: 10칸 (분할 플래시)
+  [...MEMORY_ROUND2_PHASES[0], ...MEMORY_ROUND2_PHASES[1]],                 // Round 2: 8칸 (4개씩 2회 분할 플래시)
+  [...MEMORY_ROUND3_PHASES[0], ...MEMORY_ROUND3_PHASES[1], ...MEMORY_ROUND3_PHASES[2]], // Round 3: 9칸 (3회 분할 플래시)
 ];
 export const MEMORY_SHOW_MS = 1000;
 
@@ -137,9 +144,9 @@ export const FINAL_CODE = '1024';
 
 // ─── Sound Paths ─────────────────────────────────────────────────
 export const SOUNDS = {
-  beep:    '/sounds/beep.mp3',
-  success: '/sounds/success.mp3',
-  error:   '/sounds/error.mp3',
-  unlock:  '/sounds/unlock.mp3',
-  ambient: '/sounds/ambient.mp3',
+  beep:    '/sounds/beep.wav',
+  success: '/sounds/success.wav',
+  error:   '/sounds/error.wav',
+  unlock:  '/sounds/unlock.wav',
+  ambient: '/sounds/ambient.wav',
 } as const;

@@ -89,7 +89,7 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`/photos/photo-${photoNum + 1}.jpg`}
+          src={`/photos/photo-${photoNum + 1}.png`}
           alt={`사진 ${photoNum + 1}`}
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -240,9 +240,6 @@ export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: 
               key="idle"
               className="flex flex-col items-center gap-4"
             >
-              <p className="text-green-800 text-xs tracking-widest">
-                {order.map((n) => `IMG_${String(n + 1).padStart(3, '0')}`).join(' → ')}
-              </p>
               <button
                 onClick={handleCheck}
                 className="flex items-center gap-2 px-8 py-3 border-2 border-green-700
