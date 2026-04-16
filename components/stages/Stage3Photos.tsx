@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { PHOTO_COUNT, CORRECT_PHOTO_ORDER } from '@/lib/constants';
+import { withBasePath } from '@/lib/assetPath';
 import { playSound } from '@/lib/sounds';
 
 interface StageProps {
@@ -89,7 +90,7 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`/photos/photo-${photoNum + 1}.png`}
+          src={withBasePath(`/photos/photo-${photoNum + 1}.png`)}
           alt={`사진 ${photoNum + 1}`}
           className="w-full h-full object-cover"
           onError={(e) => {

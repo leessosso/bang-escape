@@ -1,4 +1,5 @@
 import { SOUNDS } from './constants';
+import { withBasePath } from './assetPath';
 
 let audioContext: AudioContext | null = null;
 
@@ -28,7 +29,7 @@ function playBeepFallback(freq = 440, duration = 0.1, type: OscillatorType = 'sq
 
 async function playFile(src: string): Promise<void> {
   try {
-    const audio = new Audio(src);
+    const audio = new Audio(withBasePath(src));
     audio.volume = 0.5;
     await audio.play();
   } catch {
