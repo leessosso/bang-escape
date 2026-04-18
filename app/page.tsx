@@ -100,10 +100,10 @@ export default function EscapeRoomPage() {
     onComplete: handleStageComplete,
   };
 
-  // Stage 3 = Photos
-  if (currentStage === 3) {
-    stageProps.savedOrder = stageData[3] as number[] | undefined;
-    stageProps.onOrderChange = (order: number[]) => handleStageDataChange(3, order);
+  // Stage 2 = Photos
+  if (currentStage === 2) {
+    stageProps.savedOrder = stageData[2] as number[] | undefined;
+    stageProps.onOrderChange = (order: number[]) => handleStageDataChange(2, order);
   }
   // Stage 5 = Circuit
   if (currentStage === 5) {

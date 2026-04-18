@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Radio, CheckCircle, QrCode } from 'lucide-react';
+import { Radio, CheckCircle } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { MORSE_ANSWER, MORSE_CODE } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
@@ -37,7 +37,7 @@ function MorseSymbol({ char, active }: { char: string; active: boolean }) {
   );
 }
 
-export default function StageSignal({ onComplete }: StageProps) {
+export default function Stage3Morse({ onComplete }: StageProps) {
   const [input, setInput] = useState('');
   const [status, setStatus] = useState<'idle' | 'error' | 'success'>('idle');
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -95,20 +95,9 @@ export default function StageSignal({ onComplete }: StageProps) {
         subtitle={<>&gt; 수신된 모스 신호를 해독하여 <span className="text-green-400">영단어</span>를 입력하라</>}
       />
 
-      {/* QR 안내 */}
-      <div className="flex items-center gap-3 border border-green-800 bg-green-950/20 px-5 py-3 rounded">
-        <QrCode size={28} className="text-green-500 shrink-0" />
-        <div>
-          <p className="text-green-400 text-sm font-bold tracking-widest">모스 부호 참조표</p>
-          <p className="text-green-700 text-xs tracking-widest mt-0.5">
-            현장에 비치된 QR 코드를 스캔하면 모스 규칙을 확인할 수 있습니다
-          </p>
-        </div>
-      </div>
-
       {/* Morse display */}
       <div className="border border-green-900 bg-black/70 p-8 rounded w-full max-w-2xl">
-        <p className="text-green-800 text-xs tracking-widest mb-6">// INCOMING TRANSMISSION</p>
+        <p className="text-green-800 text-xs tracking-widest mb-6">{'// INCOMING TRANSMISSION'}</p>
         <div className="flex items-end justify-center gap-10 flex-wrap">
           {perLetter.map(({ code, start }, li) => (
             <div key={li} className="flex flex-col items-center gap-4">

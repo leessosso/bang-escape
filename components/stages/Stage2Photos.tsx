@@ -113,7 +113,7 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
   );
 }
 
-export default function Stage1Photos({ onComplete, savedOrder, onOrderChange }: StageProps) {
+export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: StageProps) {
   // 저장된 순서가 없으면 랜덤 셔플 (useState 초기화 함수로 한 번만 실행)
   const [order, setOrder] = useState<number[]>(() => {
     if (savedOrder && savedOrder.length === PHOTO_COUNT) return savedOrder;
