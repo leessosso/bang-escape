@@ -9,11 +9,11 @@ export const LOGIN_PASSWORD = '0721'; // 마 7:21
 export const MORSE_ANSWER = 'AMEN';
 
 export const MORSE_CODE: Record<string, string> = {
-  A: '.-',   B: '-...', C: '-.-.', D: '-..',  E: '.',
-  F: '..-.', G: '--.',  H: '....', I: '..',   J: '.---',
-  K: '-.-',  L: '.-..', M: '--',   N: '-.',   O: '---',
-  P: '.--.', Q: '--.-', R: '.-.',  S: '...',  T: '-',
-  U: '..-',  V: '...-', W: '.--',  X: '-..-', Y: '-.--',
+  A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.',
+  F: '..-.', G: '--.', H: '....', I: '..', J: '.---',
+  K: '-.-', L: '.-..', M: '--', N: '-.', O: '---',
+  P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-',
+  U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--',
   Z: '--..',
   '0': '-----', '1': '.----', '2': '..---', '3': '...--',
   '4': '....-', '5': '.....', '6': '-....', '7': '--...',
@@ -68,7 +68,7 @@ export const MEMORY_SHOW_MS = 1000;
 export const CIRCUIT_GRID_SIZE = 4; // 4×4 = 16 tiles
 // Entry: 좌측 2번 행(row=2, col=0) 서쪽, Exit: 우측 2번 행(row=2, col=3) 동쪽
 export const CIRCUIT_ENTRY = { row: 2, col: 0, dir: 3 } as const; // W
-export const CIRCUIT_EXIT  = { row: 2, col: 3, dir: 1 } as const; // E
+export const CIRCUIT_EXIT = { row: 2, col: 3, dir: 1 } as const; // E
 
 // 파이프 타일 유형: 각 방향 연결 여부 [N, E, S, W]
 export type PipeTileType = 'straight' | 'curve' | 'tee' | 'cross' | 'dead';
@@ -79,11 +79,11 @@ export interface PipeTileDef {
 }
 
 export const PIPE_TILES: Record<PipeTileType, PipeTileDef> = {
-  straight: { type: 'straight', base: [true,  false, true,  false] }, // N+S
-  curve:    { type: 'curve',    base: [false, true,  true,  false] }, // E+S
-  tee:      { type: 'tee',      base: [false, true,  true,  true]  }, // E+S+W
-  cross:    { type: 'cross',    base: [true,  true,  true,  true]  }, // all
-  dead:     { type: 'dead',     base: [true,  false, false, false] }, // N only
+  straight: { type: 'straight', base: [true, false, true, false] }, // N+S
+  curve: { type: 'curve', base: [false, true, true, false] }, // E+S
+  tee: { type: 'tee', base: [false, true, true, true] }, // E+S+W
+  cross: { type: 'cross', base: [true, true, true, true] }, // all
+  dead: { type: 'dead', base: [true, false, false, false] }, // N only
 };
 
 /**
@@ -102,25 +102,25 @@ export const PIPE_TILES: Record<PipeTileType, PipeTileDef> = {
  */
 export const CIRCUIT_SOLUTION: Array<{ type: PipeTileType; rotation: number }> = [
   // row 0  (idx 0-3)
-  { type: 'curve',    rotation: 2 }, // (0,0) N+W  → 비경로
-  { type: 'curve',    rotation: 3 }, // (0,1) N+E  → 비경로 (인접 경로 타일과 비연결)
-  { type: 'curve',    rotation: 0 }, // (0,2) E+S  ★
-  { type: 'curve',    rotation: 1 }, // (0,3) S+W  ★
+  { type: 'curve', rotation: 2 }, // (0,0) N+W  → 비경로
+  { type: 'curve', rotation: 3 }, // (0,1) N+E  → 비경로 (인접 경로 타일과 비연결)
+  { type: 'curve', rotation: 0 }, // (0,2) E+S  ★
+  { type: 'curve', rotation: 1 }, // (0,3) S+W  ★
   // row 1  (idx 4-7)
-  { type: 'curve',    rotation: 0 }, // (1,0) E+S  ★
+  { type: 'curve', rotation: 0 }, // (1,0) E+S  ★
   { type: 'straight', rotation: 1 }, // (1,1) E+W  ★ (경로 직선, 유지)
-  { type: 'curve',    rotation: 2 }, // (1,2) N+W  ★
+  { type: 'curve', rotation: 2 }, // (1,2) N+W  ★
   { type: 'straight', rotation: 0 }, // (1,3) N+S  ★ (경로 직선, 유지)
   // row 2  (idx 8-11)
-  { type: 'curve',    rotation: 2 }, // (2,0) N+W  ★ ← entry
-  { type: 'curve',    rotation: 0 }, // (2,1) E+S  → 비경로
-  { type: 'curve',    rotation: 1 }, // (2,2) S+W  → 비경로
-  { type: 'curve',    rotation: 3 }, // (2,3) N+E  ★ ← exit
+  { type: 'curve', rotation: 2 }, // (2,0) N+W  ★ ← entry
+  { type: 'curve', rotation: 0 }, // (2,1) E+S  → 비경로
+  { type: 'curve', rotation: 1 }, // (2,2) S+W  → 비경로
+  { type: 'curve', rotation: 3 }, // (2,3) N+E  ★ ← exit
   // row 3  (idx 12-15)
-  { type: 'curve',    rotation: 3 }, // (3,0) N+E  → 비경로
-  { type: 'curve',    rotation: 0 }, // (3,1) E+S  → 비경로
-  { type: 'curve',    rotation: 3 }, // (3,2) N+E  → 비경로
-  { type: 'curve',    rotation: 2 }, // (3,3) N+W  → 비경로
+  { type: 'curve', rotation: 3 }, // (3,0) N+E  → 비경로
+  { type: 'curve', rotation: 0 }, // (3,1) E+S  → 비경로
+  { type: 'curve', rotation: 3 }, // (3,2) N+E  → 비경로
+  { type: 'curve', rotation: 2 }, // (3,3) N+W  → 비경로
 ];
 
 // 초기 회전 오프셋 (1~3): 솔루션 + 오프셋 → 시작 배치 (항상 틀린 상태)
@@ -132,11 +132,11 @@ export const CIRCUIT_INITIAL_ROTATIONS: number[] = [
 ];
 
 // ─── Stage: Caesar Cipher ─────────────────────────────────────────
-export const CIPHER_SHIFT = 3;
+export const CIPHER_MOVE = 3;
 export const CIPHER_ANSWER = 'FAITH';
 export const CIPHER_ENCRYPTED = CIPHER_ANSWER
   .split('')
-  .map((c) => String.fromCharCode(((c.charCodeAt(0) - 65 + CIPHER_SHIFT) % 26) + 65))
+  .map((c) => String.fromCharCode(((c.charCodeAt(0) - 65 + CIPHER_MOVE) % 26) + 65))
   .join(''); // → 'IDLWK'
 
 // ─── Stage: Final Recovery ────────────────────────────────────────
@@ -144,9 +144,9 @@ export const FINAL_CODE = '1024';
 
 // ─── Sound Paths ─────────────────────────────────────────────────
 export const SOUNDS = {
-  beep:    '/sounds/beep.wav',
+  beep: '/sounds/beep.wav',
   success: '/sounds/success.wav',
-  error:   '/sounds/error.wav',
-  unlock:  '/sounds/unlock.wav',
+  error: '/sounds/error.wav',
+  unlock: '/sounds/unlock.wav',
   ambient: '/sounds/ambient.wav',
 } as const;

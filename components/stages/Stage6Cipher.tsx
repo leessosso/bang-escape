@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, CheckCircle } from 'lucide-react';
 import StageHeader from './StageHeader';
-import { CIPHER_SHIFT, CIPHER_ANSWER, CIPHER_ENCRYPTED } from '@/lib/constants';
+import { CIPHER_MOVE, CIPHER_ANSWER, CIPHER_ENCRYPTED } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
 interface StageProps {
@@ -37,7 +37,7 @@ export default function StageCipher({ onComplete }: StageProps) {
         badge="STAGE // ENCRYPTION BYPASS"
         icon={<><Lock size={26} /><Unlock size={26} /></>}
         title="CAESAR CIPHER"
-        subtitle={<>&gt; 암호화된 메시지를 <span className="text-green-400">SHIFT {CIPHER_SHIFT}</span>로 복호화하라</>}
+        subtitle={<>&gt; 암호화된 메시지를 <span className="text-green-400">MOVE {CIPHER_MOVE}</span>로 복호화하라</>}
       />
 
       {/* Encrypted message */}
