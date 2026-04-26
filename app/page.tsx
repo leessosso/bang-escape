@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import CRTOverlay from '@/components/CRTOverlay';
 import HUD from '@/components/HUD';
-import GameOver from '@/components/GameOver';
 import MissionComplete from '@/components/MissionComplete';
 import StageTransition from '@/components/StageTransition';
 import { STAGE_REGISTRY } from '@/components/stages';
@@ -12,13 +11,17 @@ import { loadState, saveState, clearState, type GameState } from '@/lib/storage'
 
 export default function EscapeRoomPage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [isGameOver, setIsGameOver] = useState(false);
   const [isMissionComplete, setIsMissionComplete] = useState(false);
 
   // Hydrate from localStorage
   useEffect(() => {
-    const saved = loadState();
-    setGameState(saved);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) setGameState(loadState());
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Persist to localStorage on change
@@ -57,20 +60,15 @@ export default function EscapeRoomPage() {
     });
   }, []);
 
-  // Stage0(Login) 진입 시 즉시 10분 카운트 시작
+  // Stage0(Login) 진입 시 즉시 경과 시간 기록 시작
   useEffect(() => {
     if (!gameState) return;
     if (gameState.currentStage !== 0 || gameState.startedAt) return;
-    handleStart();
+    queueMicrotask(handleStart);
   }, [gameState, handleStart]);
-
-  const handleTimeUp = useCallback(() => {
-    setIsGameOver(true);
-  }, []);
 
   const handleRestart = useCallback(() => {
     clearState();
-    setIsGameOver(false);
     setIsMissionComplete(false);
     setGameState({
       currentStage: 0,
@@ -119,10 +117,9 @@ export default function EscapeRoomPage() {
       <CRTOverlay />
 
       {/* HUD — 타이머 시작 후에만 표시 */}
-      {startedAt && !isGameOver && (
+      {startedAt && (
         <HUD
           startedAt={startedAt}
-          onTimeUp={handleTimeUp}
           currentStage={currentStage}
           totalStages={STAGE_REGISTRY.length}
         />
@@ -130,7 +127,7 @@ export default function EscapeRoomPage() {
 
       {/* Stage progress bar */}
       {startedAt && (
-        <div className="fixed top-0 left-0 right-0 h-0.5 z-[150] bg-green-950">
+        <div className="fixed top-0 left-0 right-0 h-0.5 z-150 bg-green-950">
           <div
             className="h-full bg-green-500 transition-all duration-500"
             style={{
@@ -142,7 +139,7 @@ export default function EscapeRoomPage() {
       )}
 
       {/* Stage label */}
-      <div className="fixed bottom-3 left-3 z-[150] text-green-800 text-[10px] tracking-[0.3em]">
+      <div className="fixed bottom-3 left-3 z-150 text-green-800 text-[10px] tracking-[0.3em]">
         {STAGE_REGISTRY.map((s, i) => (
           <span key={s.id} className={i === currentStage ? 'text-green-500' : ''}>
             {i === currentStage ? `[${s.label}]` : s.label}
@@ -153,18 +150,11 @@ export default function EscapeRoomPage() {
 
       {/* Main stage content */}
       <AnimatePresence mode="wait">
-        {!isGameOver && (
-          <StageTransition stageKey={currentStage}>
-            <div className="h-screen w-screen">
-              <StageComponent {...stageProps} />
-            </div>
-          </StageTransition>
-        )}
-      </AnimatePresence>
-
-      {/* Game Over overlay */}
-      <AnimatePresence>
-        {isGameOver && <GameOver onRestart={handleRestart} />}
+        <StageTransition stageKey={currentStage}>
+          <div className="h-screen w-screen">
+            <StageComponent {...stageProps} />
+          </div>
+        </StageTransition>
       </AnimatePresence>
 
       {/* Mission Complete overlay */}

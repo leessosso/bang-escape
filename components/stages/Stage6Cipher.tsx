@@ -42,7 +42,7 @@ export default function StageCipher({ onComplete }: StageProps) {
 
       {/* Encrypted message */}
       <div className="text-center space-y-4">
-        <p className="text-green-700 text-xs tracking-[0.4em]">// ENCRYPTED MESSAGE</p>
+        <p className="text-green-700 text-xs tracking-[0.4em]">{'// ENCRYPTED MESSAGE'}</p>
         <div className="flex gap-4 justify-center">
           {CIPHER_ENCRYPTED.split('').map((char, i) => (
             <div

@@ -1,6 +1,3 @@
-// ─── Game Settings ───────────────────────────────────────────────
-export const GAME_DURATION_SEC = 600; // 10분
-
 // ─── Stage 0: Login ──────────────────────────────────────────────
 export const LOGIN_PASSWORD = '0721'; // 마 7:21
 

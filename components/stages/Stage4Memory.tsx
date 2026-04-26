@@ -56,7 +56,7 @@ export default function StageMemory({ onComplete }: StageProps) {
   useEffect(() => {
     if (phase !== 'memorize') return;
     const startedAt = Date.now();
-    setCountdownMs(showMs);
+    const resetId = setTimeout(() => setCountdownMs(showMs), 0);
 
     const tickId = setInterval(() => {
       const elapsed = Date.now() - startedAt;
@@ -73,6 +73,7 @@ export default function StageMemory({ onComplete }: StageProps) {
     }, showMs);
 
     return () => {
+      clearTimeout(resetId);
       clearInterval(tickId);
       clearTimeout(timeoutId);
     };
@@ -84,7 +85,11 @@ export default function StageMemory({ onComplete }: StageProps) {
     playSound.beep();
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(idx) ? next.delete(idx) : next.add(idx);
+      if (next.has(idx)) {
+        next.delete(idx);
+      } else {
+        next.add(idx);
+      }
       return next;
     });
   };

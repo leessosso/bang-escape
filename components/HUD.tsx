@@ -2,30 +2,26 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Thermometer, Cpu, Clock } from 'lucide-react';
-import { GAME_DURATION_SEC } from '@/lib/constants';
 
 interface HUDProps {
   startedAt: number | null;
-  onTimeUp: () => void;
   currentStage: number;
   totalStages: number;
 }
 
-export default function HUD({ startedAt, onTimeUp, currentStage, totalStages }: HUDProps) {
-  const [remaining, setRemaining] = useState(GAME_DURATION_SEC);
+export default function HUD({ startedAt, currentStage, totalStages }: HUDProps) {
+  const [elapsed, setElapsed] = useState(() => (
+    startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0
+  ));
   const [temp, setTemp] = useState(42);
   const [cpu, setCpu] = useState(67);
 
   const tick = useCallback(() => {
     if (!startedAt) return;
-    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-    const left = Math.max(0, GAME_DURATION_SEC - elapsed);
-    setRemaining(left);
-    if (left === 0) onTimeUp();
-  }, [startedAt, onTimeUp]);
+    setElapsed(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
+  }, [startedAt]);
 
   useEffect(() => {
-    tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [tick]);
@@ -39,13 +35,11 @@ export default function HUD({ startedAt, onTimeUp, currentStage, totalStages }: 
     return () => clearInterval(id);
   }, []);
 
-  const minutes = String(Math.floor(remaining / 60)).padStart(2, '0');
-  const seconds = String(remaining % 60).padStart(2, '0');
-  const isUrgent = remaining < 60;
-  const isWarning = remaining < 180;
+  const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const seconds = String(elapsed % 60).padStart(2, '0');
 
   return (
-    <div className="fixed top-3 right-3 z-[200] flex flex-col gap-2 text-xs font-mono">
+    <div className="fixed top-3 right-3 z-200 flex flex-col gap-2 text-xs font-mono">
       {/* Stage progress */}
       <div className="hud-widget px-3 py-1.5 rounded text-[10px] tracking-widest">
         <span className="text-green-600">STAGE </span>
@@ -73,14 +67,12 @@ export default function HUD({ startedAt, onTimeUp, currentStage, totalStages }: 
         </span>
       </div>
 
-      {/* Countdown timer */}
-      <div className={`hud-widget px-3 py-2 rounded flex items-center gap-2 ${isUrgent ? 'border-red-500 animate-pulse' : ''}`}>
-        <Clock size={12} className={isUrgent ? 'text-red-400' : 'text-green-500'} />
-        <span className={`tracking-widest ${isUrgent ? 'text-red-400' : 'text-green-600'}`}>TIME</span>
+      {/* Elapsed timer */}
+      <div className="hud-widget px-3 py-2 rounded flex items-center gap-2">
+        <Clock size={12} className="text-green-500" />
+        <span className="tracking-widest text-green-600">ELAPSED</span>
         <span
-          className={`font-bold text-base ml-auto tabular-nums ${
-            isUrgent ? 'text-red-400 text-glow-red' : isWarning ? 'text-yellow-400' : 'text-glow'
-          }`}
+          className="font-bold text-base ml-auto tabular-nums text-glow"
         >
           {minutes}:{seconds}
         </span>

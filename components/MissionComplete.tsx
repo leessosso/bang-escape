@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Users, Clock, RotateCcw } from 'lucide-react';
-import { FINAL_CODE, GAME_DURATION_SEC } from '@/lib/constants';
+import { FINAL_CODE } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
 interface MissionCompleteProps {
@@ -20,7 +20,6 @@ function formatTime(sec: number) {
 
 export default function MissionComplete({ startedAt, completedAt, onNextTeam }: MissionCompleteProps) {
   const elapsed = Math.floor((completedAt - startedAt) / 1000);
-  const remaining = Math.max(0, GAME_DURATION_SEC - elapsed);
 
   useEffect(() => {
     playSound.success();
@@ -28,7 +27,7 @@ export default function MissionComplete({ startedAt, completedAt, onNextTeam }: 
 
   return (
     <motion.div
-      className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-black/95"
+      className="fixed inset-0 z-300 flex flex-col items-center justify-center bg-black/95"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
@@ -52,7 +51,7 @@ export default function MissionComplete({ startedAt, completedAt, onNextTeam }: 
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <p className="text-xs tracking-[0.5em] text-green-700 mb-2">// OPERATION COMPLETE</p>
+          <p className="text-xs tracking-[0.5em] text-green-700 mb-2">{'// OPERATION COMPLETE'}</p>
           <h1 className="text-4xl sm:text-5xl font-black tracking-[0.3em] text-glow animate-glitch">
             MISSION COMPLETE
           </h1>
@@ -74,14 +73,12 @@ export default function MissionComplete({ startedAt, completedAt, onNextTeam }: 
             </p>
           </div>
 
-          {/* Time remaining */}
+          {/* Mission status */}
           <div className="hud-widget p-4 flex flex-col items-center gap-2">
             <CheckCircle size={18} className="text-green-600" />
-            <p className="text-green-700 text-xs tracking-widest">TIME REMAINING</p>
-            <p className={`text-3xl font-black tabular-nums ${
-              remaining > 120 ? 'text-green-400 text-glow' : 'text-yellow-400'
-            }`}>
-              {formatTime(remaining)}
+            <p className="text-green-700 text-xs tracking-widest">MISSION STATUS</p>
+            <p className="text-green-400 text-glow text-3xl font-black tracking-widest">
+              SUCCESS
             </p>
           </div>
         </motion.div>
