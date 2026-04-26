@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon, Lock } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { PHOTO_COUNT, CORRECT_PHOTO_ORDER } from '@/lib/constants';
 import { withBasePath } from '@/lib/assetPath';
@@ -31,15 +31,34 @@ interface StageProps {
   onOrderChange?: (order: number[]) => void;
 }
 
-// Fisher-Yates shuffle — 정답 순서가 나오면 재시도
+const FIXED_PHOTO = CORRECT_PHOTO_ORDER[0];
+
+// Fisher-Yates shuffle — 첫 번째 사진은 고정하고, 정답 순서가 나오면 재시도
 function shuffleOrder(n: number): number[] {
-  const arr = Array.from({ length: n }, (_, i) => i);
-  for (let i = arr.length - 1; i > 0; i--) {
+  const rest = Array.from({ length: n }, (_, i) => i).filter((photoNum) => photoNum !== FIXED_PHOTO);
+  for (let i = rest.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    [rest[i], rest[j]] = [rest[j], rest[i]];
   }
+  const arr = [FIXED_PHOTO, ...rest];
   if (arraysEqual(arr, CORRECT_PHOTO_ORDER)) return shuffleOrder(n);
   return arr;
+}
+
+function normalizeOrder(order: number[], n: number): number[] {
+  const uniqueOrder = order.filter((photoNum, index) => (
+    Number.isInteger(photoNum)
+    && photoNum >= 0
+    && photoNum < n
+    && order.indexOf(photoNum) === index
+  ));
+
+  if (uniqueOrder.length !== n) return shuffleOrder(n);
+
+  return [
+    FIXED_PHOTO,
+    ...uniqueOrder.filter((photoNum) => photoNum !== FIXED_PHOTO),
+  ];
 }
 
 function arraysEqual(a: number[], b: number[]) {
@@ -51,10 +70,14 @@ interface SortablePhotoProps {
   index: number;
   photoNum: number;
   isSolved: boolean;
+  isLocked: boolean;
 }
 
-function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+function SortablePhoto({ id, index, photoNum, isSolved, isLocked }: SortablePhotoProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: isLocked,
+  });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -65,12 +88,13 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative flex flex-col items-center gap-2 cursor-grab active:cursor-grabbing
+      className={`relative flex flex-col items-center gap-2
+                  ${isLocked ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}
                   select-none touch-none
                   ${isDragging ? 'opacity-50' : 'opacity-100'}
                   transition-opacity duration-150`}
       {...attributes}
-      {...listeners}
+      {...(isLocked ? {} : listeners)}
     >
       {/* Position label */}
       <div className={`text-xs tracking-widest font-bold ${isSolved ? 'text-green-400' : 'text-green-700'}`}>
@@ -84,7 +108,9 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
                       ? 'border-green-300 shadow-lg shadow-green-400/30'
                       : isSolved
                         ? 'border-green-400'
-                        : 'border-green-800 hover:border-green-600'
+                        : isLocked
+                          ? 'border-green-500 shadow-green-500/20 shadow-sm'
+                          : 'border-green-800 hover:border-green-600'
                     }
                     transition-all duration-200 bg-black`}
       >
@@ -108,7 +134,14 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
       </div>
 
       {/* Drag handle */}
-      <GripHorizontal size={16} className="text-green-700" />
+      {isLocked ? (
+        <div className="flex items-center gap-1 text-[0.65rem] font-bold tracking-[0.25em] text-green-500">
+          <Lock size={12} />
+          FIXED
+        </div>
+      ) : (
+        <GripHorizontal size={16} className="text-green-700" />
+      )}
     </div>
   );
 }
@@ -116,14 +149,18 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
 export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: StageProps) {
   // 저장된 순서가 없으면 랜덤 셔플 (useState 초기화 함수로 한 번만 실행)
   const [order, setOrder] = useState<number[]>(() => {
-    if (savedOrder && savedOrder.length === PHOTO_COUNT) return savedOrder;
+    if (savedOrder && savedOrder.length === PHOTO_COUNT) return normalizeOrder(savedOrder, PHOTO_COUNT);
     return shuffleOrder(PHOTO_COUNT);
   });
   const [result, setResult] = useState<'idle' | 'correct' | 'wrong'>('idle');
 
-  // 최초 랜덤 순서를 localStorage에 저장
+  // 최초 랜덤 순서 또는 기존 저장값 보정 결과를 localStorage에 저장
   useEffect(() => {
-    if (!savedOrder || savedOrder.length !== PHOTO_COUNT) {
+    const normalizedSavedOrder = savedOrder && savedOrder.length === PHOTO_COUNT
+      ? normalizeOrder(savedOrder, PHOTO_COUNT)
+      : undefined;
+
+    if (!normalizedSavedOrder || !arraysEqual(normalizedSavedOrder, savedOrder ?? [])) {
       onOrderChange?.(order);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,8 +184,12 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = order.indexOf(Number(String(active.id).replace('photo-', '')));
-    const newIndex = order.indexOf(Number(String(over.id).replace('photo-', '')));
+    const activePhoto = Number(String(active.id).replace('photo-', ''));
+    const overPhoto = Number(String(over.id).replace('photo-', ''));
+    if (activePhoto === FIXED_PHOTO || overPhoto === FIXED_PHOTO) return;
+
+    const oldIndex = order.indexOf(activePhoto);
+    const newIndex = order.indexOf(overPhoto);
     const newOrder = arrayMove(order, oldIndex, newIndex);
     setOrder(newOrder);
     onOrderChange?.(newOrder);
@@ -186,6 +227,7 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
                 index={index}
                 photoNum={photoNum}
                 isSolved={result === 'correct'}
+                isLocked={photoNum === FIXED_PHOTO}
               />
             ))}
           </div>

@@ -20,7 +20,7 @@ const BOOT_LINES = [
 ];
 
 const PIN_LENGTH = 4;
-const KEYPAD = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+const KEYPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
 
 export default function Stage0Login({ onComplete }: StageProps) {
   const [digits, setDigits] = useState<string[]>(Array(PIN_LENGTH).fill(''));
@@ -204,7 +204,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                 ENTER 4-DIGIT ACCESS CODE
               </p>
               <p className="text-green-500/80 text-sm text-center">
-                등촌교회와 가장 관련있는 구절은?
+                올해 등촌교회와 관련있는 구절을 찾아보세요.
               </p>
 
               {/* PIN boxes + Keypad side by side */}
