@@ -203,6 +203,9 @@ export default function Stage0Login({ onComplete }: StageProps) {
               <p className="text-green-600 text-xs tracking-[0.3em] text-center">
                 ENTER 4-DIGIT ACCESS CODE
               </p>
+              <p className="text-green-500/80 text-sm text-center">
+                등촌교회와 가장 관련있는 구절은?
+              </p>
 
               {/* PIN boxes + Keypad side by side */}
               <div className="flex items-center justify-center gap-8">
