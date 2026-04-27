@@ -122,6 +122,7 @@ export default function EscapeRoomPage() {
           startedAt={startedAt}
           currentStage={currentStage}
           totalStages={STAGE_REGISTRY.length}
+          onReset={handleRestart}
         />
       )}
 

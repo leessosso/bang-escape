@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon, Lock } from 'lucide-react';
+import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { PHOTO_COUNT, CORRECT_PHOTO_ORDER } from '@/lib/constants';
 import { withBasePath } from '@/lib/assetPath';
@@ -31,16 +31,13 @@ interface StageProps {
   onOrderChange?: (order: number[]) => void;
 }
 
-const FIXED_PHOTO = CORRECT_PHOTO_ORDER[0];
-
-// Fisher-Yates shuffle — 첫 번째 사진은 고정하고, 정답 순서가 나오면 재시도
+// Fisher-Yates shuffle — 정답 순서가 나오면 재시도
 function shuffleOrder(n: number): number[] {
-  const rest = Array.from({ length: n }, (_, i) => i).filter((photoNum) => photoNum !== FIXED_PHOTO);
-  for (let i = rest.length - 1; i > 0; i--) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [rest[i], rest[j]] = [rest[j], rest[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  const arr = [FIXED_PHOTO, ...rest];
   if (arraysEqual(arr, CORRECT_PHOTO_ORDER)) return shuffleOrder(n);
   return arr;
 }
@@ -54,11 +51,7 @@ function normalizeOrder(order: number[], n: number): number[] {
   ));
 
   if (uniqueOrder.length !== n) return shuffleOrder(n);
-
-  return [
-    FIXED_PHOTO,
-    ...uniqueOrder.filter((photoNum) => photoNum !== FIXED_PHOTO),
-  ];
+  return uniqueOrder;
 }
 
 function arraysEqual(a: number[], b: number[]) {
@@ -70,14 +63,10 @@ interface SortablePhotoProps {
   index: number;
   photoNum: number;
   isSolved: boolean;
-  isLocked: boolean;
 }
 
-function SortablePhoto({ id, index, photoNum, isSolved, isLocked }: SortablePhotoProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id,
-    disabled: isLocked,
-  });
+function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -88,13 +77,12 @@ function SortablePhoto({ id, index, photoNum, isSolved, isLocked }: SortablePhot
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative flex flex-col items-center gap-2
-                  ${isLocked ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}
+      className={`relative flex flex-col items-center gap-2 cursor-grab active:cursor-grabbing
                   select-none touch-none
                   ${isDragging ? 'opacity-50' : 'opacity-100'}
                   transition-opacity duration-150`}
       {...attributes}
-      {...(isLocked ? {} : listeners)}
+      {...listeners}
     >
       {/* Position label */}
       <div className={`text-xs tracking-widest font-bold ${isSolved ? 'text-green-400' : 'text-green-700'}`}>
@@ -108,9 +96,7 @@ function SortablePhoto({ id, index, photoNum, isSolved, isLocked }: SortablePhot
                       ? 'border-green-300 shadow-lg shadow-green-400/30'
                       : isSolved
                         ? 'border-green-400'
-                        : isLocked
-                          ? 'border-green-500 shadow-green-500/20 shadow-sm'
-                          : 'border-green-800 hover:border-green-600'
+                        : 'border-green-800 hover:border-green-600'
                     }
                     transition-all duration-200 bg-black`}
       >
@@ -134,14 +120,7 @@ function SortablePhoto({ id, index, photoNum, isSolved, isLocked }: SortablePhot
       </div>
 
       {/* Drag handle */}
-      {isLocked ? (
-        <div className="flex items-center gap-1 text-[0.65rem] font-bold tracking-[0.25em] text-green-500">
-          <Lock size={12} />
-          FIXED
-        </div>
-      ) : (
-        <GripHorizontal size={16} className="text-green-700" />
-      )}
+      <GripHorizontal size={16} className="text-green-700" />
     </div>
   );
 }
@@ -184,12 +163,8 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const activePhoto = Number(String(active.id).replace('photo-', ''));
-    const overPhoto = Number(String(over.id).replace('photo-', ''));
-    if (activePhoto === FIXED_PHOTO || overPhoto === FIXED_PHOTO) return;
-
-    const oldIndex = order.indexOf(activePhoto);
-    const newIndex = order.indexOf(overPhoto);
+    const oldIndex = order.indexOf(Number(String(active.id).replace('photo-', '')));
+    const newIndex = order.indexOf(Number(String(over.id).replace('photo-', '')));
     const newOrder = arrayMove(order, oldIndex, newIndex);
     setOrder(newOrder);
     onOrderChange?.(newOrder);
@@ -227,7 +202,6 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
                 index={index}
                 photoNum={photoNum}
                 isSolved={result === 'correct'}
-                isLocked={photoNum === FIXED_PHOTO}
               />
             ))}
           </div>

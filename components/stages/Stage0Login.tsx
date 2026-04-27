@@ -204,7 +204,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                 ENTER 4-DIGIT ACCESS CODE
               </p>
               <p className="text-green-500/80 text-sm text-center">
-                올해 등촌교회와 관련있는 구절을 찾아보세요.
+                HINT : 올해 등촌교회와 관련있는 구절은?
               </p>
 
               {/* PIN boxes + Keypad side by side */}
