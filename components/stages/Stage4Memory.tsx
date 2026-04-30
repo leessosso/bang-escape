@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, CheckCircle, RotateCcw } from 'lucide-react';
 import StageHeader from './StageHeader';
@@ -24,24 +24,44 @@ export default function StageMemory({ onComplete }: StageProps) {
   const [attempts, setAttempts] = useState(0);
   // 분할 플래시 라운드 전용: 현재 플래시 인덱스
   const [memFlash, setMemFlash] = useState(0);
+  const pendingTimeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const correctSet = MEMORY_ROUNDS[round];
-  const requiredCount = correctSet.length;
-  const roundMemorizePhases =
+  const clearScheduledTimeouts = useCallback(() => {
+    pendingTimeouts.current.forEach(clearTimeout);
+    pendingTimeouts.current = [];
+  }, []);
+
+  const scheduleTimeout = useCallback((callback: () => void, delay: number) => {
+    const id = setTimeout(() => {
+      pendingTimeouts.current = pendingTimeouts.current.filter((timeoutId) => timeoutId !== id);
+      callback();
+    }, delay);
+    pendingTimeouts.current.push(id);
+  }, []);
+
+  const roundMemorizePhases = useMemo(() => (
     round === 1
       ? MEMORY_ROUND2_PHASES
       : round === 2
         ? MEMORY_ROUND3_PHASES
-        : [MEMORY_ROUNDS[round]];
+        : [MEMORY_ROUNDS[round]]
+  ), [round]);
+
+  const correctSet = useMemo(() => new Set(MEMORY_ROUNDS[round]), [round]);
+  const requiredCount = correctSet.size;
   const flashCount = roundMemorizePhases.length;
   const isSplitFlashRound = flashCount > 1;
 
   // 현재 memorize 단계에서 보여줄 셀 인덱스 목록
-  const currentMemorizeCells = roundMemorizePhases[memFlash] ?? [];
+  const currentMemorizeCellSet = useMemo(
+    () => new Set(roundMemorizePhases[memFlash] ?? []),
+    [memFlash, roundMemorizePhases],
+  );
 
   const showMs = isSplitFlashRound ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
 
   const startRound = useCallback((r: number) => {
+    clearScheduledTimeouts();
     const isSplitRound = r === 1 || r === 2;
     const ms = isSplitRound ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
     setRound(r);
@@ -50,7 +70,9 @@ export default function StageMemory({ onComplete }: StageProps) {
     setMemFlash(0);
     setPhase('memorize');
     setCountdownMs(ms);
-  }, []);
+  }, [clearScheduledTimeouts]);
+
+  useEffect(() => clearScheduledTimeouts, [clearScheduledTimeouts]);
 
   // 카운트다운 (memorize 단계)
   useEffect(() => {
@@ -98,28 +120,28 @@ export default function StageMemory({ onComplete }: StageProps) {
   const handleSubmit = () => {
     const correct = MEMORY_ROUNDS[round];
     const isCorrect =
-      selected.size === correct.length &&
-      correct.every((i) => selected.has(i));
+      selected.size === correctSet.size &&
+      Array.from(selected).every((i) => correctSet.has(i));
 
     if (isCorrect) {
       playSound.success();
       if (round >= MEMORY_ROUNDS.length - 1) {
         setPhase('complete');
-        setTimeout(onComplete, 2000);
+        scheduleTimeout(onComplete, 2000);
       } else {
         setPhase('round-pass');
-        setTimeout(() => startRound(round + 1), 1800);
+        scheduleTimeout(() => startRound(round + 1), 1800);
       }
     } else {
       // 틀린 칸 표시
       const wrong = new Set<number>();
-      selected.forEach((i) => { if (!correct.includes(i)) wrong.add(i); });
+      selected.forEach((i) => { if (!correctSet.has(i)) wrong.add(i); });
       correct.forEach((i) => { if (!selected.has(i)) wrong.add(i); });
       setWrongCells(wrong);
       setPhase('wrong');
       setAttempts((a) => a + 1);
       playSound.error();
-      setTimeout(() => startRound(round), 2000);
+      scheduleTimeout(() => startRound(round), 2000);
     }
   };
 
@@ -219,8 +241,8 @@ export default function StageMemory({ onComplete }: StageProps) {
         style={{ gridTemplateColumns: `repeat(${MEMORY_GRID_SIZE}, minmax(0, 1fr))` }}
       >
         {Array.from({ length: TOTAL_CELLS }).map((_, idx) => {
-          const isTarget = currentMemorizeCells.includes(idx);
-          const isFullTarget = MEMORY_ROUNDS[round].includes(idx);
+          const isTarget = currentMemorizeCellSet.has(idx);
+          const isFullTarget = correctSet.has(idx);
           const isSelected = selected.has(idx);
           const isWrong = wrongCells.has(idx);
 

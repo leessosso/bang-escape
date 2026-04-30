@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -58,6 +58,10 @@ function arraysEqual(a: number[], b: number[]) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
+function parsePhotoId(id: DragEndEvent['active']['id']): number {
+  return Number(String(id).replace('photo-', ''));
+}
+
 interface SortablePhotoProps {
   id: string;
   index: number;
@@ -67,11 +71,11 @@ interface SortablePhotoProps {
 
 function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  const style = {
+  const style = useMemo(() => ({
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 50 : 'auto',
-  };
+  }), [isDragging, transform, transition]);
 
   return (
     <div
@@ -126,6 +130,7 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
 }
 
 export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: StageProps) {
+  const hasSyncedInitialOrder = useRef(false);
   // 저장된 순서가 없으면 랜덤 셔플 (useState 초기화 함수로 한 번만 실행)
   const [order, setOrder] = useState<number[]>(() => {
     if (savedOrder && savedOrder.length === PHOTO_COUNT) return normalizeOrder(savedOrder, PHOTO_COUNT);
@@ -135,6 +140,9 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
 
   // 최초 랜덤 순서 또는 기존 저장값 보정 결과를 localStorage에 저장
   useEffect(() => {
+    if (hasSyncedInitialOrder.current) return;
+    hasSyncedInitialOrder.current = true;
+
     const normalizedSavedOrder = savedOrder && savedOrder.length === PHOTO_COUNT
       ? normalizeOrder(savedOrder, PHOTO_COUNT)
       : undefined;
@@ -142,15 +150,14 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
     if (!normalizedSavedOrder || !arraysEqual(normalizedSavedOrder, savedOrder ?? [])) {
       onOrderChange?.(order);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [onOrderChange, order, savedOrder]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const handleCheck = () => {
+  const handleCheck = useCallback(() => {
     if (arraysEqual(order, CORRECT_PHOTO_ORDER)) {
       setResult('correct');
       playSound.success();
@@ -158,22 +165,24 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
       setResult('wrong');
       playSound.error();
     }
-  };
+  }, [order]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = order.indexOf(Number(String(active.id).replace('photo-', '')));
-    const newIndex = order.indexOf(Number(String(over.id).replace('photo-', '')));
+    const oldIndex = order.indexOf(parsePhotoId(active.id));
+    const newIndex = order.indexOf(parsePhotoId(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+
     const newOrder = arrayMove(order, oldIndex, newIndex);
     setOrder(newOrder);
     onOrderChange?.(newOrder);
     // 오답 상태에서 다시 드래그하면 오답 메시지 초기화
-    if (result === 'wrong') setResult('idle');
+    setResult((prev) => prev === 'wrong' ? 'idle' : prev);
     playSound.beep();
-  };
+  }, [onOrderChange, order]);
 
-  const ids = order.map((n) => `photo-${n}`);
+  const ids = useMemo(() => order.map((n) => `photo-${n}`), [order]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">

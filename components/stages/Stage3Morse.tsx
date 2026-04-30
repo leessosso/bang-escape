@@ -16,6 +16,17 @@ const ENCODED: { letter: string; code: string }[] = MORSE_ANSWER.split('').map((
   code: MORSE_CODE[c] ?? '?',
 }));
 
+const MORSE_SYMBOLS = ENCODED.flatMap(({ code }, letterIdx) => (
+  code.split('').map((_, symIdx) => ({ letterIdx, symIdx }))
+));
+
+let symbolStart = 0;
+const PER_LETTER = ENCODED.map(({ code }) => {
+  const start = symbolStart;
+  symbolStart += code.length;
+  return { code, start };
+});
+
 function MorseSymbol({ char, active }: { char: string; active: boolean }) {
   if (char === '.') {
     return (
@@ -43,24 +54,21 @@ export default function Stage3Morse({ onComplete }: StageProps) {
   const [activeIdx, setActiveIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 전체 심볼 목록 (글자 사이 gap 포함)
-  const allSymbols: { letterIdx: number; symIdx: number }[] = [];
-  ENCODED.forEach(({ code }, li) =>
-    code.split('').forEach((_, si) => allSymbols.push({ letterIdx: li, symIdx: si }))
-  );
-
   useEffect(() => {
     let i = 0;
+    let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const id = setInterval(() => {
       setActiveIdx(i);
-      if (i >= allSymbols.length - 1) {
+      if (i >= MORSE_SYMBOLS.length - 1) {
         clearInterval(id);
-        setTimeout(() => inputRef.current?.focus(), 300);
+        focusTimeout = setTimeout(() => inputRef.current?.focus(), 300);
       }
       i++;
     }, 300);
-    return () => clearInterval(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      clearInterval(id);
+      if (focusTimeout) clearTimeout(focusTimeout);
+    };
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -77,14 +85,6 @@ export default function Stage3Morse({ onComplete }: StageProps) {
     }
   };
 
-  // 글자별 심볼 시작 인덱스 계산
-  let globalSym = 0;
-  const perLetter = ENCODED.map(({ code }) => {
-    const start = globalSym;
-    globalSym += code.length;
-    return { code, start };
-  });
-
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
@@ -99,7 +99,7 @@ export default function Stage3Morse({ onComplete }: StageProps) {
       <div className="border border-green-900 bg-black/70 p-8 rounded w-full max-w-2xl">
         <p className="text-green-800 text-xs tracking-widest mb-6">{'// INCOMING TRANSMISSION'}</p>
         <div className="flex items-end justify-center gap-10 flex-wrap">
-          {perLetter.map(({ code, start }, li) => (
+          {PER_LETTER.map(({ code, start }, li) => (
             <div key={li} className="flex flex-col items-center gap-4">
               {/* 심볼 행 */}
               <div className="flex items-center h-8">

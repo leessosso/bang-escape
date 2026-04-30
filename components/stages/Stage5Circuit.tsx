@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, ChevronRight, Zap } from 'lucide-react';
 import StageHeader from './StageHeader';
@@ -21,6 +21,13 @@ interface StageProps {
 }
 
 const TOTAL = CIRCUIT_GRID_SIZE * CIRCUIT_GRID_SIZE;
+const ALL_CIRCUIT_TILES = new Set(Array.from({ length: TOTAL }, (_, i) => i));
+const EMPTY_CIRCUIT_TILES = new Set<number>();
+
+function getInitialRotations(savedRotations?: number[]): number[] {
+  if (savedRotations && savedRotations.length === TOTAL) return savedRotations;
+  return CIRCUIT_INITIAL_ROTATIONS.map((offset, i) => (CIRCUIT_SOLUTION[i].rotation + offset) % 4);
+}
 
 // 회전 적용: CW 1회 → [N,E,S,W] 에서 W→N, N→E, E→S, S→W
 function rotateConnections(
@@ -102,37 +109,21 @@ function PipeSVG({
   );
 }
 
-export default function Stage2Circuit({ onComplete, savedRotations, onRotationsChange }: StageProps) {
-  const initRots = useCallback(() => {
-    if (savedRotations && savedRotations.length === TOTAL) return savedRotations;
-    return CIRCUIT_INITIAL_ROTATIONS.map((offset, i) => (CIRCUIT_SOLUTION[i].rotation + offset) % 4);
-  }, [savedRotations]);
+export default function Stage5Circuit({ onComplete, savedRotations, onRotationsChange }: StageProps) {
+  const [rotations, setRotations] = useState<number[]>(() => getInitialRotations(savedRotations));
+  const [solved, setSolved] = useState(() => checkSolved(getInitialRotations(savedRotations)));
+  const pathTiles = solved ? ALL_CIRCUIT_TILES : EMPTY_CIRCUIT_TILES;
 
-  const [rotations, setRotations] = useState<number[]>(initRots);
-  const [solved, setSolved] = useState(false);
-  const [pathTiles, setPathTiles] = useState<Set<number>>(new Set());
-
-  const evaluate = useCallback((rots: number[]) => {
-    if (checkSolved(rots)) {
-      setSolved(true);
-      setPathTiles(new Set(Array.from({ length: TOTAL }, (_, i) => i)));
-      playSound.success();
-    } else {
-      setSolved(false);
-      setPathTiles(new Set());
-    }
-  }, []);
-
-  useEffect(() => { evaluate(rotations); }, []); // eslint-disable-line
-
-  const handleClick = (idx: number) => {
+  const handleClick = useCallback((idx: number) => {
     if (solved) return;
     playSound.beep();
     const next = rotations.map((r, i) => i === idx ? (r + 1) % 4 : r);
+    const nextSolved = checkSolved(next);
     setRotations(next);
+    setSolved(nextSolved);
     onRotationsChange?.(next);
-    evaluate(next);
-  };
+    if (nextSolved) playSound.success();
+  }, [onRotationsChange, rotations, solved]);
 
   const G = CIRCUIT_GRID_SIZE;
 

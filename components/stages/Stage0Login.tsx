@@ -22,8 +22,19 @@ const BOOT_LINES = [
 const PIN_LENGTH = 4;
 const KEYPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
 
+function createEmptyDigits(): string[] {
+  return Array(PIN_LENGTH).fill('');
+}
+
+function getLastFilledIndex(digits: string[]): number {
+  for (let i = digits.length - 1; i >= 0; i--) {
+    if (digits[i]) return i;
+  }
+  return -1;
+}
+
 export default function Stage0Login({ onComplete }: StageProps) {
-  const [digits, setDigits] = useState<string[]>(Array(PIN_LENGTH).fill(''));
+  const [digits, setDigits] = useState<string[]>(createEmptyDigits);
   const [pressedKey, setPressedKey] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'error' | 'success'>('idle');
   const [bootDone, setBootDone] = useState(false);
@@ -56,7 +67,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
       playSound.error();
       setTimeout(() => {
         setStatus('idle');
-        setDigits(Array(PIN_LENGTH).fill(''));
+        setDigits(createEmptyDigits());
         inputRefs.current[0]?.focus();
       }, 1500);
     }
@@ -108,9 +119,8 @@ export default function Stage0Login({ onComplete }: StageProps) {
     if (key === '⌫') {
       setDigits((prev) => {
         const next = [...prev];
-        const lastFilled = [...next].map((d, i) => (d ? i : -1)).filter(i => i >= 0);
-        if (lastFilled.length === 0) return next;
-        const idx = lastFilled[lastFilled.length - 1];
+        const idx = getLastFilledIndex(next);
+        if (idx < 0) return next;
         next[idx] = '';
         inputRefs.current[idx]?.focus();
         return next;
@@ -138,7 +148,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
     e.preventDefault();
     const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, PIN_LENGTH);
     if (!pasted) return;
-    const next = Array(PIN_LENGTH).fill('');
+    const next = createEmptyDigits();
     pasted.split('').forEach((ch, i) => { next[i] = ch; });
     setDigits(next);
     const focusIdx = Math.min(pasted.length, PIN_LENGTH - 1);

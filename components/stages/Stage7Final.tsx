@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tv, CheckCircle } from 'lucide-react';
 import StageHeader from './StageHeader';
@@ -8,27 +8,27 @@ import { FINAL_CODE } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
 
 const NOISE_CHARS = '█▓▒░▀▄■□▪▫◆◇○●◉⊕⊗╬╫╪░▒▓';
+const LOADING_DOT_INDICES = [0, 1, 2, 3, 4];
 
-function NoiseChar() {
-  const [char, setChar] = useState('█');
-  useEffect(() => {
-    const id = setInterval(() => {
-      setChar(NOISE_CHARS[Math.floor(Math.random() * NOISE_CHARS.length)]);
-    }, 60);
-    return () => clearInterval(id);
-  }, []);
-  return <span className="opacity-60">{char}</span>;
+function createNoiseRows(cols: number, rows: number): string[] {
+  return Array.from({ length: rows }, (_, row) => (
+    Array.from({ length: cols }, (_, col) => {
+      const index = (row * 17 + col * 31 + row * col) % NOISE_CHARS.length;
+      return NOISE_CHARS[index];
+    }).join('')
+  ));
 }
 
 function StaticNoise({ cols, rows }: { cols: number; rows: number }) {
+  const noiseRows = useMemo(() => createNoiseRows(cols, rows), [cols, rows]);
+
   return (
-    <div className="font-mono text-green-900 leading-none text-xs overflow-hidden select-none">
-      {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} className="flex">
-          {Array.from({ length: cols }).map((_, c) => (
-            <NoiseChar key={c} />
-          ))}
-        </div>
+    <div
+      aria-hidden="true"
+      className="font-mono text-green-900/70 leading-none text-xs overflow-hidden select-none whitespace-pre"
+    >
+      {noiseRows.map((line, row) => (
+        <div key={row}>{line}</div>
       ))}
     </div>
   );
@@ -37,6 +37,7 @@ function StaticNoise({ cols, rows }: { cols: number; rows: number }) {
 function GlitchCode({ code }: { code: string }) {
   const [display, setDisplay] = useState('????');
   const [phase, setPhase] = useState<'noise' | 'reveal' | 'stable'>('noise');
+  const codeDigits = useMemo(() => code.split(''), [code]);
 
   useEffect(() => {
     let step = 0;
@@ -46,8 +47,7 @@ function GlitchCode({ code }: { code: string }) {
       if (step < total * 0.6) {
         // 노이즈 단계
         setDisplay(
-          code
-            .split('')
+          codeDigits
             .map(() => String(Math.floor(Math.random() * 10)))
             .join('')
         );
@@ -56,8 +56,7 @@ function GlitchCode({ code }: { code: string }) {
         // 점진적 공개
         const revealed = Math.floor(((step - total * 0.6) / (total * 0.4)) * code.length);
         setDisplay(
-          code
-            .split('')
+          codeDigits
             .map((c, i) => (i < revealed ? c : String(Math.floor(Math.random() * 10))))
             .join('')
         );
@@ -70,7 +69,7 @@ function GlitchCode({ code }: { code: string }) {
       }
     }, 80);
     return () => clearInterval(id);
-  }, [code]);
+  }, [code, codeDigits]);
 
   return (
     <motion.div
@@ -91,20 +90,23 @@ function GlitchCode({ code }: { code: string }) {
   );
 }
 
-interface Stage3Props {
+interface StageProps {
   onComplete: () => void;
 }
 
-export default function Stage3Final({ onComplete }: Stage3Props) {
+export default function Stage7Final({ onComplete }: StageProps) {
   const [phase, setPhase] = useState<'cctv' | 'reveal' | 'done'>('cctv');
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase('reveal'), 2500);
     const t2 = setTimeout(() => setPhase('done'), 6000);
     const t3 = setTimeout(() => onComplete(), 7200); // 코드 공개 후 MissionComplete 진입
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [onComplete]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
@@ -150,7 +152,7 @@ export default function Stage3Final({ onComplete }: Stage3Props) {
                     RECOVERING SIGNAL...
                   </p>
                   <div className="flex gap-1 justify-center">
-                    {[0,1,2,3,4].map((i) => (
+                    {LOADING_DOT_INDICES.map((i) => (
                       <motion.div
                         key={i}
                         className="w-2 h-2 bg-green-500 rounded-full"

@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import CRTOverlay from '@/components/CRTOverlay';
 import HUD from '@/components/HUD';
 import MissionComplete from '@/components/MissionComplete';
 import StageTransition from '@/components/StageTransition';
-import { STAGE_REGISTRY } from '@/components/stages';
-import { loadState, saveState, clearState, type GameState } from '@/lib/storage';
+import { STAGE_REGISTRY, type StageRenderProps } from '@/components/stages';
+import { loadState, saveState, clearState, createDefaultGameState, type GameState } from '@/lib/storage';
+
+const EMPTY_STAGE_DATA: GameState['stageData'] = {};
 
 export default function EscapeRoomPage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [isMissionComplete, setIsMissionComplete] = useState(false);
 
   // Hydrate from localStorage
   useEffect(() => {
@@ -34,8 +35,7 @@ export default function EscapeRoomPage() {
       if (!prev) return prev;
       const isLast = prev.currentStage >= STAGE_REGISTRY.length - 1;
       if (isLast) {
-        // 마지막 스테이지 완료 → 완료 시각 기록
-        setIsMissionComplete(true);
+        if (prev.completedAt) return prev;
         return { ...prev, completedAt: Date.now() };
       }
       return { ...prev, currentStage: prev.currentStage + 1 };
@@ -69,14 +69,32 @@ export default function EscapeRoomPage() {
 
   const handleRestart = useCallback(() => {
     clearState();
-    setIsMissionComplete(false);
-    setGameState({
-      currentStage: 0,
-      startedAt: null,
-      completedAt: null,
-      stageData: {},
-    });
+    setGameState(createDefaultGameState());
   }, []);
+
+  const currentStage = gameState?.currentStage ?? 0;
+  const startedAt = gameState?.startedAt ?? null;
+  const completedAt = gameState?.completedAt ?? null;
+  const stageData = gameState?.stageData ?? EMPTY_STAGE_DATA;
+  const stageConfig = STAGE_REGISTRY[currentStage] ?? STAGE_REGISTRY[STAGE_REGISTRY.length - 1];
+  const StageComponent = stageConfig.component;
+  const isMissionComplete = Boolean(startedAt && completedAt);
+
+  const stageProps = useMemo<StageRenderProps>(() => {
+    const props: StageRenderProps = { onComplete: handleStageComplete };
+
+    if (currentStage === 2) {
+      props.savedOrder = Array.isArray(stageData[2]) ? stageData[2] : undefined;
+      props.onOrderChange = (order) => handleStageDataChange(2, order);
+    }
+
+    if (currentStage === 5) {
+      props.savedRotations = Array.isArray(stageData[5]) ? stageData[5] : undefined;
+      props.onRotationsChange = (rotations) => handleStageDataChange(5, rotations);
+    }
+
+    return props;
+  }, [currentStage, handleStageComplete, handleStageDataChange, stageData]);
 
   // Loading state (hydration)
   if (!gameState) {
@@ -87,26 +105,6 @@ export default function EscapeRoomPage() {
         </p>
       </div>
     );
-  }
-
-  const { currentStage, startedAt, stageData } = gameState;
-  const stageConfig = STAGE_REGISTRY[currentStage] ?? STAGE_REGISTRY[STAGE_REGISTRY.length - 1];
-  const StageComponent = stageConfig.component;
-
-  // Build stage-specific props
-  const stageProps: Record<string, unknown> = {
-    onComplete: handleStageComplete,
-  };
-
-  // Stage 2 = Photos
-  if (currentStage === 2) {
-    stageProps.savedOrder = stageData[2] as number[] | undefined;
-    stageProps.onOrderChange = (order: number[]) => handleStageDataChange(2, order);
-  }
-  // Stage 5 = Circuit
-  if (currentStage === 5) {
-    stageProps.savedRotations = stageData[5] as number[] | undefined;
-    stageProps.onRotationsChange = (rots: number[]) => handleStageDataChange(5, rots);
   }
 
   return (
@@ -160,10 +158,10 @@ export default function EscapeRoomPage() {
 
       {/* Mission Complete overlay */}
       <AnimatePresence>
-        {isMissionComplete && gameState.startedAt && gameState.completedAt && (
+        {isMissionComplete && startedAt && completedAt && (
           <MissionComplete
-            startedAt={gameState.startedAt}
-            completedAt={gameState.completedAt}
+            startedAt={startedAt}
+            completedAt={completedAt}
             onNextTeam={handleRestart}
           />
         )}

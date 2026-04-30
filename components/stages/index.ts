@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import Stage0Login      from './Stage0Login';
 import Stage1Frequency  from './Stage1Frequency';
 import Stage2Photos     from './Stage2Photos';
@@ -7,11 +8,21 @@ import Stage5Circuit    from './Stage5Circuit';
 import Stage6Cipher     from './Stage6Cipher';
 import Stage7Final      from './Stage7Final';
 
+export interface StageBaseProps {
+  onComplete: () => void;
+}
+
+export interface StageRenderProps extends StageBaseProps {
+  savedOrder?: number[];
+  onOrderChange?: (order: number[]) => void;
+  savedRotations?: number[];
+  onRotationsChange?: (rotations: number[]) => void;
+}
+
 export interface StageConfig {
   id: number;
   label: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: React.ComponentType<any>;
+  component: ComponentType<StageRenderProps>;
 }
 
 /**
