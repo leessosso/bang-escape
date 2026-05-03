@@ -1,14 +1,67 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tv, CheckCircle } from 'lucide-react';
+import { Tv } from 'lucide-react';
 import StageHeader from './StageHeader';
-import { FINAL_CODE } from '@/lib/constants';
-import { playSound } from '@/lib/sounds';
 
-const NOISE_CHARS = '█▓▒░▀▄■□▪▫◆◇○●◉⊕⊗╬╫╪░▒▓';
+const NOISE_CHARS = '???????????????????????';
 const LOADING_DOT_INDICES = [0, 1, 2, 3, 4];
+const FINAL_CCTV_VIDEO_ID = 'ThViJ6Xh5OE';
+const STATIC_DURATION_MS = 2500;
+
+type YoutubePlayerLike = {
+  destroy: () => void;
+  unMute: () => void;
+  mute: () => void;
+  setVolume: (v: number) => void;
+};
+
+declare global {
+  interface Window {
+    YT?: {
+      Player: new (
+        container: HTMLElement | string,
+        options: Record<string, unknown>,
+      ) => YoutubePlayerLike;
+      PlayerState: { ENDED: number };
+    };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+function ensureYouTubeIframeApi(): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve();
+
+  if (window.YT?.Player) return Promise.resolve();
+
+  type WindowWithYtPromise = Window & { __bangEscapeYtApiPromise?: Promise<void> };
+  const w = window as WindowWithYtPromise;
+
+  if (!w.__bangEscapeYtApiPromise) {
+    w.__bangEscapeYtApiPromise = new Promise<void>((resolve) => {
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        prev?.();
+        resolve();
+      };
+
+      const existing = document.querySelector('script[src*="youtube.com/iframe_api"]');
+      if (!existing) {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        tag.async = true;
+        document.head.appendChild(tag);
+      }
+
+      queueMicrotask(() => {
+        if (window.YT?.Player) resolve();
+      });
+    });
+  }
+
+  return w.__bangEscapeYtApiPromise;
+}
 
 function createNoiseRows(cols: number, rows: number): string[] {
   return Array.from({ length: rows }, (_, row) => (
@@ -34,95 +87,97 @@ function StaticNoise({ cols, rows }: { cols: number; rows: number }) {
   );
 }
 
-function GlitchCode({ code }: { code: string }) {
-  const [display, setDisplay] = useState('????');
-  const [phase, setPhase] = useState<'noise' | 'reveal' | 'stable'>('noise');
-  const codeDigits = useMemo(() => code.split(''), [code]);
-
-  useEffect(() => {
-    let step = 0;
-    const total = 30;
-    const id = setInterval(() => {
-      step++;
-      if (step < total * 0.6) {
-        // 노이즈 단계
-        setDisplay(
-          codeDigits
-            .map(() => String(Math.floor(Math.random() * 10)))
-            .join('')
-        );
-        setPhase('noise');
-      } else if (step < total) {
-        // 점진적 공개
-        const revealed = Math.floor(((step - total * 0.6) / (total * 0.4)) * code.length);
-        setDisplay(
-          codeDigits
-            .map((c, i) => (i < revealed ? c : String(Math.floor(Math.random() * 10))))
-            .join('')
-        );
-        setPhase('reveal');
-      } else {
-        setDisplay(code);
-        setPhase('stable');
-        clearInterval(id);
-        playSound.unlock();
-      }
-    }, 80);
-    return () => clearInterval(id);
-  }, [code, codeDigits]);
-
-  return (
-    <motion.div
-      className={`text-8xl sm:text-9xl font-black tracking-[0.3em] tabular-nums
-                  ${phase === 'stable' ? 'text-glow animate-glitch' : 'text-green-700'}
-                  transition-colors duration-300`}
-      animate={phase === 'stable' ? {
-        textShadow: [
-          '0 0 10px #00ff41, 0 0 20px #00ff41',
-          '0 0 20px #00ff41, 0 0 40px #00ff41, 0 0 60px #00ff41',
-          '0 0 10px #00ff41, 0 0 20px #00ff41',
-        ],
-      } : {}}
-      transition={{ repeat: Infinity, duration: 2 }}
-    >
-      {display}
-    </motion.div>
-  );
-}
-
 interface StageProps {
   onComplete: () => void;
 }
 
 export default function Stage7Final({ onComplete }: StageProps) {
-  const [phase, setPhase] = useState<'cctv' | 'reveal' | 'done'>('cctv');
+  const [phase, setPhase] = useState<'cctv' | 'reveal'>('cctv');
+  const [showAudioPrompt, setShowAudioPrompt] = useState(false);
+  const playerMountRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YoutubePlayerLike | null>(null);
+  const onCompleteRef = useRef(onComplete);
+  const hasEndedRef = useRef(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('reveal'), 2500);
-    const t2 = setTimeout(() => setPhase('done'), 6000);
-    const t3 = setTimeout(() => onComplete(), 7200); // 코드 공개 후 MissionComplete 진입
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
+    onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  const handleVideoEnded = useCallback(() => {
+    if (hasEndedRef.current) return;
+    hasEndedRef.current = true;
+    onCompleteRef.current();
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => setPhase('reveal'), STATIC_DURATION_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    const mountEl = playerMountRef.current;
+    if (!mountEl) return;
+
+    let cancelled = false;
+
+    ensureYouTubeIframeApi().then(() => {
+      if (cancelled || !mountEl || !window.YT?.Player) return;
+
+      const player = new window.YT.Player(mountEl, {
+        width: '100%',
+        height: '100%',
+        videoId: FINAL_CCTV_VIDEO_ID,
+        playerVars: {
+          autoplay: 1,
+          mute: 0,
+          controls: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          rel: 0,
+        },
+        events: {
+          onReady: () => {
+            // Try to start with audio enabled; browser policy may still block this.
+            player.unMute();
+            player.setVolume(100);
+          },
+          onStateChange: (ev: { data: number }) => {
+            if (ev.data === window.YT!.PlayerState.ENDED) {
+              handleVideoEnded();
+            }
+          },
+        },
+      });
+
+      playerRef.current = player;
+    });
+
+    return () => {
+      cancelled = true;
+      try {
+        playerRef.current?.destroy();
+      } catch {
+        /* noop */
+      }
+      playerRef.current = null;
+    };
+  }, [handleVideoEnded]);
+
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
+    <div className="flex flex-col items-center justify-center h-full px-4 gap-5 sm:gap-6">
       {/* Header */}
       <StageHeader
         badge="STAGE // FINAL RECOVERY"
         icon={<Tv size={28} />}
         title="CCTV RESTORATION"
-        subtitle={<>&gt; 복구 코드를 확인하고 시스템을 <span className="text-green-400">완전히 복원</span>하라</>}
+        subtitle={<>&gt; ?? ??? ???? ???? <span className="text-green-400">??? ??</span>??</>}
       />
 
       {/* CCTV Monitor frame */}
-      <div className="relative border-4 border-green-800 bg-black overflow-hidden"
+      <div className="relative border-4 border-green-800 bg-black overflow-hidden pt-7"
            style={{
-             width: 'min(480px, 90vw)',
-             aspectRatio: '4/3',
+             width: 'min(1200px, 96vw, calc((100vh - 210px) * 16 / 9))',
+             aspectRatio: '16/9',
              boxShadow: '0 0 30px rgba(0,255,65,0.2), inset 0 0 20px rgba(0,0,0,0.8)',
            }}>
 
@@ -131,19 +186,52 @@ export default function Stage7Final({ onComplete }: StageProps) {
                         flex items-center px-3 gap-2 z-20">
           <Tv size={12} className="text-green-600" />
           <span className="text-green-600 text-[10px] tracking-widest">CAM-07 // RECOVERY MODE</span>
-          <span className="ml-auto text-green-800 text-[10px] animate-blink">● REC</span>
+          <span className="ml-auto text-green-800 text-[10px] animate-blink">? REC</span>
         </div>
 
-        {/* Phase: CCTV static noise */}
+        {/* Video layer: loads & plays under static so reveal shows ongoing playback */}
+        <div className="absolute inset-x-0 bottom-0 top-7 z-[5] overflow-hidden bg-black">
+          <div ref={playerMountRef} className="absolute inset-0 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:h-full [&_iframe]:w-full" />
+          <div className="absolute inset-0 bg-green-950/20 mix-blend-screen pointer-events-none" />
+          <div
+            className="absolute inset-0 opacity-35 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.85) 100%)',
+            }}
+          />
+          <AnimatePresence>
+            {phase === 'reveal' && showAudioPrompt && (
+              <motion.button
+                key="audio-prompt"
+                type="button"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => {
+                  playerRef.current?.unMute();
+                  playerRef.current?.setVolume(100);
+                  setShowAudioPrompt(false);
+                }}
+                className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 border border-green-500 bg-black/80 px-4 py-2
+                           text-[10px] font-bold tracking-[0.35em] text-green-400 text-glow
+                           transition-colors hover:bg-green-500 hover:text-black"
+              >
+                ENABLE AUDIO
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Phase: CCTV static noise (covers video until STATIC_DURATION_MS) */}
         <AnimatePresence>
           {phase === 'cctv' && (
             <motion.div
               key="noise"
-              className="absolute inset-0 pt-7 flex items-center justify-center"
+              className="absolute inset-x-0 bottom-0 top-7 flex items-center justify-center z-[15]"
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="animate-noise w-full h-full overflow-hidden">
+              <div className="animate-noise absolute inset-0 w-full h-full overflow-hidden bg-black">
                 <StaticNoise cols={60} rows={30} />
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
@@ -167,38 +255,19 @@ export default function Stage7Final({ onComplete }: StageProps) {
           )}
         </AnimatePresence>
 
-        {/* Phase: reveal */}
+        {/* Label once signal is visible */}
         <AnimatePresence>
-          {(phase === 'reveal' || phase === 'done') && (
+          {phase === 'reveal' && (
             <motion.div
-              key="reveal"
-              className="absolute inset-0 pt-7 flex flex-col items-center justify-center gap-4"
+              key="label"
+              className="absolute inset-x-0 bottom-0 top-7 flex flex-col items-center justify-end pb-16 pointer-events-none z-[12]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.5 }}
             >
-              {/* Background subtle noise */}
-              <div className="absolute inset-0 opacity-10">
-                <StaticNoise cols={40} rows={20} />
-              </div>
-
-              <div className="relative z-10 text-center space-y-3">
-                <p className="text-green-600 text-xs tracking-[0.4em]">
-                  DECRYPTING RECOVERY CODE...
-                </p>
-                <GlitchCode code={FINAL_CODE} />
-                <AnimatePresence>
-                  {phase === 'done' && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-green-500 text-sm tracking-[0.3em]"
-                    >
-                      SYSTEM RESTORED
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </div>
+              <p className="relative z-10 text-green-600 text-xs tracking-[0.4em] drop-shadow-[0_0_8px_rgba(0,0,0,1)]">
+                RESTORED CCTV SIGNAL
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -209,20 +278,6 @@ export default function Stage7Final({ onComplete }: StageProps) {
                background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 3px)'
              }} />
       </div>
-
-      {/* Transitioning indicator */}
-      <AnimatePresence>
-        {phase === 'done' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2 text-green-600 text-xs tracking-widest"
-          >
-            <CheckCircle size={14} />
-            <span className="animate-pulse">UPLOADING RECOVERY REPORT...</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

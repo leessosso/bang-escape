@@ -52,7 +52,7 @@ export const MEMORY_ROUND3_PHASES: [number[], number[], number[]] = [
   [3, 5, 19],   // Phase 2: (0,3)(1,0)(3,4)
   [7, 11, 20],  // Phase 3: (1,2)(2,1)(4,0)
 ];
-export const MEMORY_SHOW_MS_R3 = 1500; // Round 3 플래시당 표시 시간 (ms)
+export const MEMORY_SHOW_MS_R3 = 1300; // Round 2/3 분할 플래시당 표시 시간 (ms)
 
 export const MEMORY_ROUNDS: number[][] = [
   [0, 3, 6, 10, 12, 16, 19, 24],                                            // Round 1: 8칸

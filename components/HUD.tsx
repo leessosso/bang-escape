@@ -1,31 +1,17 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Clock, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 
 interface HUDProps {
-  startedAt: number | null;
   currentStage: number;
   totalStages: number;
   onReset?: () => void;
 }
 
-export default function HUD({ startedAt, currentStage, totalStages, onReset }: HUDProps) {
-  const [elapsed, setElapsed] = useState(() => (
-    startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0
-  ));
+export default function HUD({ currentStage, totalStages, onReset }: HUDProps) {
   const [isResetHolding, setIsResetHolding] = useState(false);
   const resetHoldTimer = useRef<number | null>(null);
-
-  const tick = useCallback(() => {
-    if (!startedAt) return;
-    setElapsed(Math.max(0, Math.floor((Date.now() - startedAt) / 1000)));
-  }, [startedAt]);
-
-  useEffect(() => {
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [tick]);
 
   const cancelResetHold = useCallback(() => {
     if (resetHoldTimer.current) {
@@ -47,8 +33,6 @@ export default function HUD({ startedAt, currentStage, totalStages, onReset }: H
 
   useEffect(() => cancelResetHold, [cancelResetHold]);
 
-  const minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
-  const seconds = String(elapsed % 60).padStart(2, '0');
   const showReset = Boolean(onReset && currentStage > 0);
 
   return (
@@ -60,17 +44,6 @@ export default function HUD({ startedAt, currentStage, totalStages, onReset }: H
           {currentStage + 1}/{totalStages}
         </span>
         <span className="text-green-600"> ACTIVE</span>
-      </div>
-
-      {/* Elapsed timer */}
-      <div className="hud-widget px-3 py-2 rounded flex items-center gap-2">
-        <Clock size={12} className="text-green-500" />
-        <span className="tracking-widest text-green-600">ELAPSED</span>
-        <span
-          className="font-bold text-base ml-auto tabular-nums text-glow"
-        >
-          {minutes}:{seconds}
-        </span>
       </div>
 
       {showReset && (

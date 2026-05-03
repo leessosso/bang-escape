@@ -51,6 +51,7 @@ export default function StageMemory({ onComplete }: StageProps) {
   const requiredCount = correctSet.size;
   const flashCount = roundMemorizePhases.length;
   const isSplitFlashRound = flashCount > 1;
+  const cellsPerFlash = roundMemorizePhases[0]?.length ?? requiredCount;
 
   // 현재 memorize 단계에서 보여줄 셀 인덱스 목록
   const currentMemorizeCellSet = useMemo(
@@ -60,17 +61,21 @@ export default function StageMemory({ onComplete }: StageProps) {
 
   const showMs = isSplitFlashRound ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
 
-  const startRound = useCallback((r: number) => {
+  const resetRoundState = useCallback((r: number) => {
     clearScheduledTimeouts();
-    const isSplitRound = r === 1 || r === 2;
-    const ms = isSplitRound ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
     setRound(r);
     setSelected(new Set());
     setWrongCells(new Set());
     setMemFlash(0);
+  }, [clearScheduledTimeouts]);
+
+  const startRound = useCallback((r: number) => {
+    const isSplitRound = r === 1 || r === 2;
+    const ms = isSplitRound ? MEMORY_SHOW_MS_R3 : MEMORY_SHOW_MS;
+    resetRoundState(r);
     setPhase('memorize');
     setCountdownMs(ms);
-  }, [clearScheduledTimeouts]);
+  }, [resetRoundState]);
 
   useEffect(() => clearScheduledTimeouts, [clearScheduledTimeouts]);
 
@@ -130,7 +135,10 @@ export default function StageMemory({ onComplete }: StageProps) {
         scheduleTimeout(onComplete, 2000);
       } else {
         setPhase('round-pass');
-        scheduleTimeout(() => startRound(round + 1), 1800);
+        scheduleTimeout(() => {
+          resetRoundState(round + 1);
+          setPhase('intro');
+        }, 1800);
       }
     } else {
       // 틀린 칸 표시
@@ -155,7 +163,7 @@ export default function StageMemory({ onComplete }: StageProps) {
         badge="STAGE // MEMORY INTEGRITY CHECK"
         icon={<Brain size={28} />}
         title="MEMORY MATRIX"
-        subtitle={<>&gt; 패턴을 <span className="text-green-400">기억</span>하고 정확히 <span className="text-green-400">재현</span>하라</>}
+        subtitle={<>&gt; 패턴을 <span className="text-green-400">기억</span>하고 정확히 <span className="text-green-400">입력</span>하라</>}
       />
 
       {/* Round indicator */}
@@ -181,10 +189,8 @@ export default function StageMemory({ onComplete }: StageProps) {
             className="text-center space-y-4">
             <p className="text-green-500 tracking-widest">라운드 {round + 1} 준비 완료</p>
             {isSplitFlashRound ? (
-              <p className="text-yellow-500 text-sm tracking-widest leading-relaxed">
-                ⚠ CAUTION: {requiredCount}개의 칸이<br />
-                <span className="text-yellow-400 font-bold">{flashCount}회 분할 플래시</span>로 표시됩니다<br />
-                <span className="text-green-700">각 플래시 {showMs / 1000}초 — 모두 기억하라</span>
+              <p className="text-yellow-500 text-sm tracking-widest">
+                ⚠ CAUTION: 총 {requiredCount}개의 칸을 <span className="text-yellow-400 font-bold">{cellsPerFlash}개씩 {flashCount}회 분할 플래시</span>로 표시합니다
               </p>
             ) : (
               <p className="text-green-700 text-sm tracking-widest">
@@ -204,7 +210,7 @@ export default function StageMemory({ onComplete }: StageProps) {
           <motion.p key={`memorize-${round}-${memFlash}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="text-green-400 text-glow text-lg tracking-[0.4em] font-bold animate-pulse">
             {isSplitFlashRound
-              ? `FLASH ${memFlash + 1}/${flashCount} — MEMORIZING... ${(countdownMs / 1000).toFixed(1)}s`
+              ? `FLASH ${memFlash + 1}/${flashCount} (${currentMemorizeCellSet.size} CELLS) — MEMORIZING... ${(countdownMs / 1000).toFixed(1)}s`
               : `MEMORIZING... ${(countdownMs / 1000).toFixed(1)}s`}
           </motion.p>
         )}

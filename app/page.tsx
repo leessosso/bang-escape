@@ -35,8 +35,8 @@ export default function EscapeRoomPage() {
       if (!prev) return prev;
       const isLast = prev.currentStage >= STAGE_REGISTRY.length - 1;
       if (isLast) {
-        if (prev.completedAt) return prev;
-        return { ...prev, completedAt: Date.now() };
+        if (prev.isComplete) return prev;
+        return { ...prev, isComplete: true };
       }
       return { ...prev, currentStage: prev.currentStage + 1 };
     });
@@ -52,33 +52,16 @@ export default function EscapeRoomPage() {
     });
   }, []);
 
-  const handleStart = useCallback(() => {
-    setGameState((prev) => {
-      if (!prev) return prev;
-      if (prev.startedAt) return prev;
-      return { ...prev, startedAt: Date.now() };
-    });
-  }, []);
-
-  // Stage0(Login) 진입 시 즉시 경과 시간 기록 시작
-  useEffect(() => {
-    if (!gameState) return;
-    if (gameState.currentStage !== 0 || gameState.startedAt) return;
-    queueMicrotask(handleStart);
-  }, [gameState, handleStart]);
-
   const handleRestart = useCallback(() => {
     clearState();
     setGameState(createDefaultGameState());
   }, []);
 
   const currentStage = gameState?.currentStage ?? 0;
-  const startedAt = gameState?.startedAt ?? null;
-  const completedAt = gameState?.completedAt ?? null;
+  const isComplete = gameState?.isComplete ?? false;
   const stageData = gameState?.stageData ?? EMPTY_STAGE_DATA;
   const stageConfig = STAGE_REGISTRY[currentStage] ?? STAGE_REGISTRY[STAGE_REGISTRY.length - 1];
   const StageComponent = stageConfig.component;
-  const isMissionComplete = Boolean(startedAt && completedAt);
 
   const stageProps = useMemo<StageRenderProps>(() => {
     const props: StageRenderProps = { onComplete: handleStageComplete };
@@ -114,28 +97,22 @@ export default function EscapeRoomPage() {
     >
       <CRTOverlay />
 
-      {/* HUD — 타이머 시작 후에만 표시 */}
-      {startedAt && (
-        <HUD
-          startedAt={startedAt}
-          currentStage={currentStage}
-          totalStages={STAGE_REGISTRY.length}
-          onReset={handleRestart}
-        />
-      )}
+      <HUD
+        currentStage={currentStage}
+        totalStages={STAGE_REGISTRY.length}
+        onReset={handleRestart}
+      />
 
       {/* Stage progress bar */}
-      {startedAt && (
-        <div className="fixed top-0 left-0 right-0 h-0.5 z-150 bg-green-950">
-          <div
-            className="h-full bg-green-500 transition-all duration-500"
-            style={{
-              width: `${((currentStage) / (STAGE_REGISTRY.length - 1)) * 100}%`,
-              boxShadow: '0 0 8px #00ff41',
-            }}
-          />
-        </div>
-      )}
+      <div className="fixed top-0 left-0 right-0 h-0.5 z-150 bg-green-950">
+        <div
+          className="h-full bg-green-500 transition-all duration-500"
+          style={{
+            width: `${((currentStage) / (STAGE_REGISTRY.length - 1)) * 100}%`,
+            boxShadow: '0 0 8px #00ff41',
+          }}
+        />
+      </div>
 
       {/* Stage label */}
       <div className="fixed bottom-3 left-3 z-150 text-green-800 text-[10px] tracking-[0.3em]">
@@ -158,12 +135,8 @@ export default function EscapeRoomPage() {
 
       {/* Mission Complete overlay */}
       <AnimatePresence>
-        {isMissionComplete && startedAt && completedAt && (
-          <MissionComplete
-            startedAt={startedAt}
-            completedAt={completedAt}
-            onNextTeam={handleRestart}
-          />
+        {isComplete && (
+          <MissionComplete onNextTeam={handleRestart} />
         )}
       </AnimatePresence>
     </div>

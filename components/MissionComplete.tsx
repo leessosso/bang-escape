@@ -2,25 +2,14 @@
 
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Users, Clock, RotateCcw } from 'lucide-react';
-import { FINAL_CODE } from '@/lib/constants';
+import { CheckCircle, Users, RotateCcw } from 'lucide-react';
 import { playSound } from '@/lib/sounds';
 
 interface MissionCompleteProps {
-  startedAt: number;
-  completedAt: number;
   onNextTeam: () => void;
 }
 
-function formatTime(sec: number) {
-  const m = String(Math.floor(sec / 60)).padStart(2, '0');
-  const s = String(sec % 60).padStart(2, '0');
-  return `${m}:${s}`;
-}
-
-export default function MissionComplete({ startedAt, completedAt, onNextTeam }: MissionCompleteProps) {
-  const elapsed = Math.floor((completedAt - startedAt) / 1000);
-
+export default function MissionComplete({ onNextTeam }: MissionCompleteProps) {
   useEffect(() => {
     playSound.success();
   }, []);
@@ -57,46 +46,17 @@ export default function MissionComplete({ startedAt, completedAt, onNextTeam }: 
           </h1>
         </motion.div>
 
-        {/* Stats row */}
+        {/* Mission status */}
         <motion.div
-          className="grid grid-cols-2 gap-4"
+          className="hud-widget p-4 flex flex-col items-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          {/* Elapsed time */}
-          <div className="hud-widget p-4 flex flex-col items-center gap-2">
-            <Clock size={18} className="text-green-600" />
-            <p className="text-green-700 text-xs tracking-widest">ELAPSED TIME</p>
-            <p className="text-green-400 text-glow text-3xl font-black tabular-nums">
-              {formatTime(elapsed)}
-            </p>
-          </div>
-
-          {/* Mission status */}
-          <div className="hud-widget p-4 flex flex-col items-center gap-2">
-            <CheckCircle size={18} className="text-green-600" />
-            <p className="text-green-700 text-xs tracking-widest">MISSION STATUS</p>
-            <p className="text-green-400 text-glow text-3xl font-black tracking-widest">
-              SUCCESS
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Final code */}
-        <motion.div
-          className="border-2 border-green-500 bg-green-950/20 py-4 px-6"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.7 }}
-          style={{ boxShadow: '0 0 20px rgba(0,255,65,0.2)' }}
-        >
-          <p className="text-green-700 text-xs tracking-[0.4em] mb-1">FINAL ESCAPE CODE</p>
-          <p className="text-green-400 text-glow text-6xl font-black tracking-[0.6em] animate-glitch">
-            {FINAL_CODE}
-          </p>
-          <p className="text-green-700 text-xs tracking-widest mt-2">
-            위 코드를 담당자에게 제출하라
+          <CheckCircle size={18} className="text-green-600" />
+          <p className="text-green-700 text-xs tracking-widest">MISSION STATUS</p>
+          <p className="text-green-400 text-glow text-3xl font-black tracking-widest">
+            SUCCESS
           </p>
         </motion.div>
 
