@@ -170,7 +170,6 @@ export default function Stage7Final({ onComplete }: StageProps) {
         badge="STAGE // FINAL RECOVERY"
         icon={<Tv size={28} />}
         title="CCTV RESTORATION"
-        subtitle={<>&gt; ?? ??? ???? ???? <span className="text-green-400">??? ??</span>??</>}
       />
 
       {/* CCTV Monitor frame */}
