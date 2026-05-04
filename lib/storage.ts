@@ -6,10 +6,14 @@ export interface StageData {
   [stageId: number]: unknown;
 }
 
+export type PendingClueAfter = 1 | 3 | 5;
+
 export interface GameState {
   currentStage: number;
   isComplete: boolean;
   stageData: StageData;
+  /** 스테이지 1·3·5 클리어 직후 단서 화면 대기 */
+  pendingClueAfter?: PendingClueAfter;
 }
 
 export function createDefaultGameState(): GameState {
@@ -32,12 +36,22 @@ function normalizeState(value: unknown): GameState {
 
   const state = value as Partial<GameState>;
   const legacyCompletedAt = (state as { completedAt?: unknown }).completedAt;
-  return {
-    currentStage: typeof state.currentStage === 'number' && Number.isInteger(state.currentStage)
+  const rawPending = state.pendingClueAfter;
+  let pendingClueAfter: PendingClueAfter | undefined =
+    rawPending === 1 || rawPending === 3 || rawPending === 5 ? rawPending : undefined;
+  const currentStage =
+    typeof state.currentStage === 'number' && Number.isInteger(state.currentStage)
       ? Math.max(0, state.currentStage)
-      : 0,
+      : 0;
+  // 단서 오버레이는 해당 스테이지에 머물 때만 유효 (깨진 저장본 정리)
+  if (pendingClueAfter !== undefined && currentStage !== pendingClueAfter) {
+    pendingClueAfter = undefined;
+  }
+  return {
+    currentStage,
     isComplete: state.isComplete === true || typeof legacyCompletedAt === 'number',
     stageData: normalizeStageData(state.stageData),
+    ...(pendingClueAfter !== undefined ? { pendingClueAfter } : {}),
   };
 }
 

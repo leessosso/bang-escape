@@ -4,12 +4,22 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import CRTOverlay from '@/components/CRTOverlay';
 import HUD from '@/components/HUD';
+import ClueReveal from '@/components/ClueReveal';
 import MissionComplete from '@/components/MissionComplete';
 import StageTransition from '@/components/StageTransition';
 import { STAGE_REGISTRY, type StageRenderProps } from '@/components/stages';
-import { loadState, saveState, clearState, createDefaultGameState, type GameState } from '@/lib/storage';
+import {
+  loadState,
+  saveState,
+  clearState,
+  createDefaultGameState,
+  type GameState,
+} from '@/lib/storage';
 
 const EMPTY_STAGE_DATA: GameState['stageData'] = {};
+
+/** 클리어 직후 단서 화면을 넣을 스테이지 ID */
+const CLUE_AFTER_STAGES = new Set<number>([1, 3, 5]);
 
 export default function EscapeRoomPage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -38,7 +48,24 @@ export default function EscapeRoomPage() {
         if (prev.isComplete) return prev;
         return { ...prev, isComplete: true };
       }
+      const completed = prev.currentStage;
+      if (CLUE_AFTER_STAGES.has(completed)) {
+        const milestone = completed as 1 | 3 | 5;
+        if (prev.pendingClueAfter === milestone) return prev;
+        return { ...prev, pendingClueAfter: milestone };
+      }
       return { ...prev, currentStage: prev.currentStage + 1 };
+    });
+  }, []);
+
+  const handleClueContinue = useCallback(() => {
+    setGameState((prev) => {
+      if (!prev || prev.pendingClueAfter === undefined) return prev;
+      const { pendingClueAfter, ...rest } = prev;
+      return {
+        ...rest,
+        currentStage: pendingClueAfter + 1,
+      };
     });
   }, []);
 
@@ -58,6 +85,7 @@ export default function EscapeRoomPage() {
   }, []);
 
   const currentStage = gameState?.currentStage ?? 0;
+  const pendingClueAfter = gameState?.pendingClueAfter;
   const isComplete = gameState?.isComplete ?? false;
   const stageData = gameState?.stageData ?? EMPTY_STAGE_DATA;
   const stageConfig = STAGE_REGISTRY[currentStage] ?? STAGE_REGISTRY[STAGE_REGISTRY.length - 1];
@@ -131,6 +159,13 @@ export default function EscapeRoomPage() {
             <StageComponent {...stageProps} />
           </div>
         </StageTransition>
+      </AnimatePresence>
+
+      {/* 단서 화면 (스테이지 1·3·5 클리어 직후) */}
+      <AnimatePresence>
+        {pendingClueAfter !== undefined && (
+          <ClueReveal milestone={pendingClueAfter} onContinue={handleClueContinue} />
+        )}
       </AnimatePresence>
 
       {/* Mission Complete overlay */}

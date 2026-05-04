@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tv } from 'lucide-react';
 import StageHeader from './StageHeader';
@@ -83,6 +83,54 @@ function StaticNoise({ cols, rows }: { cols: number; rows: number }) {
       {noiseRows.map((line, row) => (
         <div key={row}>{line}</div>
       ))}
+    </div>
+  );
+}
+
+/** Fills the CCTV content area: base grid stays 60×30 but scales up/down so noise matches the monitor size. */
+function ScaledCctvNoise() {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const outer = outerRef.current;
+    const inner = innerRef.current;
+    if (!outer || !inner) return;
+
+    const update = () => {
+      const ow = outer.clientWidth;
+      const oh = outer.clientHeight;
+      const iw = inner.offsetWidth;
+      const ih = inner.offsetHeight;
+      if (!iw || !ih || !ow || !oh) return;
+      setScale(Math.max(ow / iw, oh / ih));
+    };
+
+    update();
+    const ro = new ResizeObserver(() => {
+      requestAnimationFrame(update);
+    });
+    ro.observe(outer);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={outerRef}
+      className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center"
+    >
+      <div
+        className="will-change-transform"
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: 'center center',
+        }}
+      >
+        <div ref={innerRef} className="animate-noise inline-block">
+          <StaticNoise cols={60} rows={30} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -230,9 +278,7 @@ export default function Stage7Final({ onComplete }: StageProps) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="animate-noise absolute inset-0 w-full h-full overflow-hidden bg-black">
-                <StaticNoise cols={60} rows={30} />
-              </div>
+              <ScaledCctvNoise />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center space-y-2">
                   <p className="text-green-600 text-xs tracking-widest animate-pulse">
