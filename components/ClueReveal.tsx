@@ -3,9 +3,10 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, FileQuestion } from 'lucide-react';
+import { withBasePath } from '@/lib/assetPath';
 import { playSound } from '@/lib/sounds';
 
-export type ClueMilestone = 1 | 3 | 5;
+export type ClueMilestone = 1 | 3;
 
 interface ClueRevealProps {
   milestone: ClueMilestone;
@@ -14,31 +15,23 @@ interface ClueRevealProps {
 
 const MILESTONE_META: Record<
   ClueMilestone,
-  { ko: string; en: string; afterStageLabel: string }
+  { ko: string; en: string; afterStageLabel: string; imageSrc: string; imageAlt: string }
 > = {
   1: {
     ko: '구간 1 · 단서',
     en: '// POST-FREQUENCY · INTEL BUFFER',
     afterStageLabel: 'STAGE 01 완료',
+    imageSrc: '/clues/chat.png',
+    imageAlt: '예비신부와 결혼식 비용을 이야기하는 카카오톡 대화 캡처',
   },
   3: {
     ko: '구간 2 · 단서',
     en: '// POST-MORSE · INTEL BUFFER',
     afterStageLabel: 'STAGE 03 완료',
-  },
-  5: {
-    ko: '구간 3 · 단서',
-    en: '// POST-CIRCUIT · INTEL BUFFER',
-    afterStageLabel: 'STAGE 05 완료',
+    imageSrc: '/clues/diary.png',
+    imageAlt: '결혼 준비 비용을 걱정하는 손글씨 일기와 웨딩 견적서',
   },
 };
-
-/** 단서 내용은 추후 채움 — 슬롯만 노출 */
-const PLACEHOLDER_SLOTS = [
-  { id: 'a', label: '단서 슬롯 A' },
-  { id: 'b', label: '단서 슬롯 B' },
-  { id: 'c', label: '단서 슬롯 C' },
-] as const;
 
 export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
   const meta = MILESTONE_META[milestone];
@@ -87,27 +80,19 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
         >
           <div className="flex items-center gap-2 text-green-700 text-xs tracking-[0.35em]">
             <FileQuestion size={16} className="shrink-0" />
-            <span>DECRYPTED FRAGMENTS · PLACEHOLDER</span>
+            <span>DECRYPTED FRAGMENT</span>
           </div>
 
-          <ul className="space-y-3">
-            {PLACEHOLDER_SLOTS.map((slot, i) => (
-              <li
-                key={`${milestone}-${slot.id}`}
-                className="rounded border border-dashed border-green-800/90 bg-green-950/30 px-4 py-4"
-              >
-                <p className="text-[10px] tracking-[0.3em] text-green-700 mb-2">
-                  {slot.label}
-                </p>
-                <p className="text-green-600/90 text-sm leading-relaxed font-mono">
-                  [ 단서 내용은 추후 입력됩니다. 현재는 레이아웃 확인용 빈 슬롯입니다. ]
-                </p>
-                <p className="mt-2 text-[10px] text-green-900 font-mono tabular-nums">
-                  SLOT_INDEX · {String(i + 1).padStart(2, '0')}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <div className="rounded border border-green-800/90 bg-green-950/30 p-3">
+            <img
+              src={withBasePath(meta.imageSrc)}
+              alt={meta.imageAlt}
+              className="w-full max-h-[52vh] rounded object-contain"
+            />
+            <p className="mt-3 text-[10px] text-green-900 font-mono tabular-nums">
+              SLOT_INDEX · {milestone === 1 ? '01' : '02'}
+            </p>
+          </div>
         </motion.div>
 
         <motion.button

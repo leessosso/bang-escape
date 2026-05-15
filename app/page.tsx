@@ -14,12 +14,13 @@ import {
   clearState,
   createDefaultGameState,
   type GameState,
+  type PendingClueAfter,
 } from '@/lib/storage';
 
 const EMPTY_STAGE_DATA: GameState['stageData'] = {};
 
 /** 클리어 직후 단서 화면을 넣을 스테이지 ID */
-const CLUE_AFTER_STAGES = new Set<number>([1, 3, 5]);
+const CLUE_AFTER_STAGES = new Set<number>([1, 3]);
 
 export default function EscapeRoomPage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -50,7 +51,7 @@ export default function EscapeRoomPage() {
       }
       const completed = prev.currentStage;
       if (CLUE_AFTER_STAGES.has(completed)) {
-        const milestone = completed as 1 | 3 | 5;
+        const milestone = completed as PendingClueAfter;
         if (prev.pendingClueAfter === milestone) return prev;
         return { ...prev, pendingClueAfter: milestone };
       }
@@ -161,7 +162,7 @@ export default function EscapeRoomPage() {
         </StageTransition>
       </AnimatePresence>
 
-      {/* 단서 화면 (스테이지 1·3·5 클리어 직후) */}
+      {/* 단서 화면 (스테이지 1·3 클리어 직후) */}
       <AnimatePresence>
         {pendingClueAfter !== undefined && (
           <ClueReveal milestone={pendingClueAfter} onContinue={handleClueContinue} />

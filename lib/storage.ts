@@ -6,13 +6,13 @@ export interface StageData {
   [stageId: number]: unknown;
 }
 
-export type PendingClueAfter = 1 | 3 | 5;
+export type PendingClueAfter = 1 | 3;
 
 export interface GameState {
   currentStage: number;
   isComplete: boolean;
   stageData: StageData;
-  /** 스테이지 1·3·5 클리어 직후 단서 화면 대기 */
+  /** 스테이지 1·3 클리어 직후 단서 화면 대기 */
   pendingClueAfter?: PendingClueAfter;
 }
 
@@ -38,7 +38,7 @@ function normalizeState(value: unknown): GameState {
   const legacyCompletedAt = (state as { completedAt?: unknown }).completedAt;
   const rawPending = state.pendingClueAfter;
   let pendingClueAfter: PendingClueAfter | undefined =
-    rawPending === 1 || rawPending === 3 || rawPending === 5 ? rawPending : undefined;
+    rawPending === 1 || rawPending === 3 ? rawPending : undefined;
   const currentStage =
     typeof state.currentStage === 'number' && Number.isInteger(state.currentStage)
       ? Math.max(0, state.currentStage)
