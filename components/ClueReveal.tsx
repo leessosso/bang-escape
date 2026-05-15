@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ChevronRight, FileQuestion } from 'lucide-react';
 import { withBasePath } from '@/lib/assetPath';
@@ -15,7 +16,15 @@ interface ClueRevealProps {
 
 const MILESTONE_META: Record<
   ClueMilestone,
-  { ko: string; en: string; afterStageLabel: string; imageSrc: string; imageAlt: string }
+  {
+    ko: string;
+    en: string;
+    afterStageLabel: string;
+    imageSrc: string;
+    imageAlt: string;
+    imageWidth: number;
+    imageHeight: number;
+  }
 > = {
   1: {
     ko: '구간 1 · 단서',
@@ -23,6 +32,8 @@ const MILESTONE_META: Record<
     afterStageLabel: 'STAGE 01 완료',
     imageSrc: '/clues/chat.png',
     imageAlt: '예비신부와 결혼식 비용을 이야기하는 카카오톡 대화 캡처',
+    imageWidth: 630,
+    imageHeight: 1024,
   },
   3: {
     ko: '구간 2 · 단서',
@@ -30,6 +41,8 @@ const MILESTONE_META: Record<
     afterStageLabel: 'STAGE 03 완료',
     imageSrc: '/clues/diary.png',
     imageAlt: '결혼 준비 비용을 걱정하는 손글씨 일기와 웨딩 견적서',
+    imageWidth: 768,
+    imageHeight: 1024,
   },
 };
 
@@ -42,7 +55,7 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-300 flex flex-col items-center justify-center bg-black/96 px-4"
+      className="fixed inset-0 z-10000 flex flex-col items-center justify-center bg-black/96 px-2 sm:px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.45 }}
@@ -58,7 +71,7 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
         transition={{ repeat: Infinity, duration: 2.2, delay: 0.4 }}
       />
 
-      <div className="relative z-10 w-full max-w-lg max-h-[85vh] flex flex-col gap-6">
+      <div className="relative z-10 w-full max-w-4xl max-h-[96vh] flex flex-col gap-4">
         <motion.div
           initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -73,7 +86,7 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
         </motion.div>
 
         <motion.div
-          className="hud-widget flex-1 min-h-0 overflow-y-auto px-4 py-5 space-y-4"
+          className="flex-1 min-h-0 overflow-y-auto rounded border border-green-800/80 bg-black/90 px-2 py-3 sm:px-4 sm:py-4 space-y-3"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.28 }}
@@ -83,11 +96,15 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
             <span>DECRYPTED FRAGMENT</span>
           </div>
 
-          <div className="rounded border border-green-800/90 bg-green-950/30 p-3">
-            <img
+          <div className="rounded border border-white/20 bg-white p-1.5 sm:p-2 shadow-[0_0_18px_rgba(255,255,255,0.18)]">
+            <Image
               src={withBasePath(meta.imageSrc)}
               alt={meta.imageAlt}
-              className="w-full max-h-[52vh] rounded object-contain"
+              width={meta.imageWidth}
+              height={meta.imageHeight}
+              sizes="(max-width: 768px) 96vw, 896px"
+              priority
+              className="mx-auto max-h-[74vh] w-auto max-w-full rounded object-contain sm:max-h-[76vh]"
             />
             <p className="mt-3 text-[10px] text-green-900 font-mono tabular-nums">
               SLOT_INDEX · {milestone === 1 ? '01' : '02'}
