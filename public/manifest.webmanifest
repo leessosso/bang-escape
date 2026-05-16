@@ -1,0 +1,19 @@
+{
+  "name": "CCTV Server Recovery Mission",
+  "short_name": "CCTV Recovery",
+  "description": "Escape Room - CCTV Server Recovery Mission",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "window.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

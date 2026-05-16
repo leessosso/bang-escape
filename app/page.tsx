@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import CRTOverlay from '@/components/CRTOverlay';
+import FullscreenGate from '@/components/FullscreenGate';
 import HUD from '@/components/HUD';
 import ClueReveal from '@/components/ClueReveal';
 import MissionComplete from '@/components/MissionComplete';
@@ -125,6 +126,7 @@ export default function EscapeRoomPage() {
       style={{ fontFamily: "'JetBrains Mono', 'Courier New', monospace" }}
     >
       <CRTOverlay />
+      <FullscreenGate />
 
       <HUD
         currentStage={currentStage}

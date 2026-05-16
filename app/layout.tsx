@@ -4,6 +4,12 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'CCTV SERVER RECOVERY // CLASSIFIED',
   description: 'Escape Room — CCTV Server Recovery Mission',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    title: 'CCTV Recovery',
+    statusBarStyle: 'black-translucent',
+  },
 };
 
 export default function RootLayout({
