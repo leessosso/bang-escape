@@ -89,13 +89,13 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
       {...listeners}
     >
       {/* Position label */}
-      <div className={`text-xs tracking-widest font-bold ${isSolved ? 'text-green-400' : 'text-green-700'}`}>
+      <div className={`text-sm tracking-[0.12em] font-bold ${isSolved ? 'text-green-400' : 'text-green-600'}`}>
         #{index + 1}
       </div>
 
       {/* Photo card */}
       <div
-        className={`w-36 h-44 sm:w-44 sm:h-56 border-2 overflow-hidden rounded
+        className={`w-38 h-46 sm:w-46 sm:h-58 border-2 overflow-hidden rounded
                     ${isDragging
                       ? 'border-green-300 shadow-lg shadow-green-400/30'
                       : isSolved
@@ -185,7 +185,7 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
   const ids = useMemo(() => order.map((n) => `photo-${n}`), [order]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
+    <div className="tablet-stage-shell mx-auto flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
       <StageHeader
         badge="STAGE // DATA RECOVERY"
@@ -195,7 +195,7 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
       />
 
       {/* Mission text */}
-      <div className="border border-green-900 bg-black/60 px-6 py-3 text-sm text-green-500 tracking-widest max-w-xl text-center">
+      <div className="tablet-panel max-w-4xl border border-green-900 bg-black/60 px-6 py-3.5 text-base text-green-500 tracking-[0.08em] text-center">
         <ImageIcon size={14} className="inline mr-2" />
         MISSION: Restore the chronological order of the surveillance footage
       </div>
@@ -229,12 +229,12 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
             >
               <div className="flex items-center gap-3 text-green-400 text-glow">
                 <CheckCircle size={24} />
-                <span className="text-xl font-bold tracking-[0.4em]">TIMELINE SYNCHRONIZED</span>
+                <span className="text-xl font-bold tracking-[0.2em]">TIMELINE SYNCHRONIZED</span>
               </div>
               <button
                 onClick={() => { playSound.beep(); onComplete(); }}
-                className="flex items-center gap-2 px-8 py-3 border-2 border-green-400
-                           text-green-400 text-glow font-bold tracking-widest text-sm
+                className="min-h-12 flex items-center gap-2 px-8 py-3 border-2 border-green-400
+                           text-green-400 text-glow font-bold tracking-[0.08em] text-base
                            hover:bg-green-400 hover:text-black transition-all active:scale-95"
               >
                 PROCEED TO NEXT MODULE
@@ -248,13 +248,13 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center gap-4"
             >
-              <p className="text-red-500 text-sm font-bold tracking-[0.3em] text-center">
+              <p className="text-red-300 text-base font-bold tracking-[0.12em] text-center">
                 ✗ SEQUENCE ERROR — RECALIBRATE AND RETRY
               </p>
               <button
                 onClick={handleCheck}
-                className="flex items-center gap-2 px-8 py-3 border-2 border-green-700
-                           text-green-500 font-bold tracking-widest text-sm
+                className="min-h-12 flex items-center gap-2 px-8 py-3 border-2 border-green-700
+                           text-green-500 font-bold tracking-[0.08em] text-base
                            hover:border-green-500 hover:text-green-400 transition-all active:scale-95"
               >
                 VERIFY SEQUENCE
@@ -268,8 +268,8 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
             >
               <button
                 onClick={handleCheck}
-                className="flex items-center gap-2 px-8 py-3 border-2 border-green-700
-                           text-green-500 font-bold tracking-widest text-sm
+                className="min-h-12 flex items-center gap-2 px-8 py-3 border-2 border-green-700
+                           text-green-500 font-bold tracking-[0.08em] text-base
                            hover:border-green-500 hover:text-green-400 transition-all active:scale-95"
               >
                 VERIFY SEQUENCE

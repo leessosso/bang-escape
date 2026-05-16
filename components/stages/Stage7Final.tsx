@@ -78,7 +78,7 @@ function StaticNoise({ cols, rows }: { cols: number; rows: number }) {
   return (
     <div
       aria-hidden="true"
-      className="font-mono text-green-900/70 leading-none text-xs overflow-hidden select-none whitespace-pre"
+      className="font-mono text-green-700/80 leading-none text-sm overflow-hidden select-none whitespace-pre"
     >
       {noiseRows.map((line, row) => (
         <div key={row}>{line}</div>
@@ -212,7 +212,7 @@ export default function Stage7Final({ onComplete }: StageProps) {
   }, [handleVideoEnded]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 gap-5 sm:gap-6">
+    <div className="tablet-stage-shell mx-auto flex flex-col items-center justify-center h-full px-4 gap-5 sm:gap-6">
       {/* Header */}
       <StageHeader
         badge="STAGE // FINAL RECOVERY"
@@ -221,23 +221,23 @@ export default function Stage7Final({ onComplete }: StageProps) {
       />
 
       {/* CCTV Monitor frame */}
-      <div className="relative border-4 border-green-800 bg-black overflow-hidden pt-7"
+      <div className="relative border-4 border-green-800 bg-black overflow-hidden pt-8"
            style={{
-             width: 'min(1200px, 96vw, calc((100vh - 210px) * 16 / 9))',
+             width: 'min(1320px, 96vw, calc((100vh - 190px) * 16 / 9))',
              aspectRatio: '16/9',
              boxShadow: '0 0 30px rgba(0,255,65,0.2), inset 0 0 20px rgba(0,0,0,0.8)',
            }}>
 
         {/* Monitor header bar */}
-        <div className="absolute top-0 left-0 right-0 h-7 bg-green-950/80 border-b border-green-900
+        <div className="absolute top-0 left-0 right-0 h-8 bg-green-950/80 border-b border-green-900
                         flex items-center px-3 gap-2 z-20">
-          <Tv size={12} className="text-green-600" />
-          <span className="text-green-600 text-[10px] tracking-widest">CAM-07 // RECOVERY MODE</span>
-          <span className="ml-auto text-green-800 text-[10px] animate-blink">? REC</span>
+          <Tv size={13} className="text-green-500" />
+          <span className="text-green-500 text-sm tracking-[0.08em]">CAM-07 // RECOVERY MODE</span>
+          <span className="ml-auto text-green-400 text-sm animate-blink">? REC</span>
         </div>
 
         {/* Video layer: loads & plays under static so reveal shows ongoing playback */}
-        <div className="absolute inset-x-0 bottom-0 top-7 z-[5] overflow-hidden bg-black">
+        <div className="absolute inset-x-0 bottom-0 top-8 z-5 overflow-hidden bg-black">
           <div ref={playerMountRef} className="absolute inset-0 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:h-full [&_iframe]:w-full" />
           <div className="absolute inset-0 bg-green-950/20 mix-blend-screen pointer-events-none" />
           <div
@@ -260,7 +260,7 @@ export default function Stage7Final({ onComplete }: StageProps) {
                   setShowAudioPrompt(false);
                 }}
                 className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 border border-green-500 bg-black/80 px-4 py-2
-                           text-[10px] font-bold tracking-[0.35em] text-green-400 text-glow
+                           text-sm font-bold tracking-[0.14em] text-green-400 text-glow
                            transition-colors hover:bg-green-500 hover:text-black"
               >
                 ENABLE AUDIO
@@ -274,14 +274,14 @@ export default function Stage7Final({ onComplete }: StageProps) {
           {phase === 'cctv' && (
             <motion.div
               key="noise"
-              className="absolute inset-x-0 bottom-0 top-7 flex items-center justify-center z-[15]"
+              className="absolute inset-x-0 bottom-0 top-8 flex items-center justify-center z-15"
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
             >
               <ScaledCctvNoise />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center space-y-2">
-                  <p className="text-green-600 text-xs tracking-widest animate-pulse">
+                  <p className="text-green-400 text-base tracking-[0.08em] animate-pulse">
                     RECOVERING SIGNAL...
                   </p>
                   <div className="flex gap-1 justify-center">
@@ -305,12 +305,12 @@ export default function Stage7Final({ onComplete }: StageProps) {
           {phase === 'reveal' && (
             <motion.div
               key="label"
-              className="absolute inset-x-0 bottom-0 top-7 flex flex-col items-center justify-end pb-16 pointer-events-none z-[12]"
+              className="absolute inset-x-0 bottom-0 top-8 flex flex-col items-center justify-end pb-16 pointer-events-none z-12"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <p className="relative z-10 text-green-600 text-xs tracking-[0.4em] drop-shadow-[0_0_8px_rgba(0,0,0,1)]">
+              <p className="relative z-10 text-green-400 text-base tracking-[0.12em] drop-shadow-[0_0_8px_rgba(0,0,0,1)]">
                 RESTORED CCTV SIGNAL
               </p>
             </motion.div>

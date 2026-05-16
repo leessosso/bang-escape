@@ -89,7 +89,7 @@ export default function Stage3Morse({ onComplete }: StageProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 gap-8">
+    <div className="tablet-stage-shell mx-auto flex flex-col items-center justify-center h-full px-6 gap-8">
       {/* Header */}
       <StageHeader
         badge="STAGE // SIGNAL INTERCEPT"
@@ -99,8 +99,8 @@ export default function Stage3Morse({ onComplete }: StageProps) {
       />
 
       {/* Morse display */}
-      <div className="border border-green-900 bg-black/70 p-8 rounded w-full max-w-2xl">
-        <p className="text-green-800 text-xs tracking-widest mb-6">{'// INCOMING TRANSMISSION'}</p>
+      <div className="tablet-panel max-w-5xl border border-green-900 bg-black/70 p-8 rounded">
+        <p className="text-green-600 tablet-label mb-6">{'// INCOMING TRANSMISSION'}</p>
         <div className="flex items-end justify-center gap-10 flex-wrap">
           {PER_LETTER.map(({ code, start }, li) => (
             <div key={li} className="flex flex-col items-center gap-4">
@@ -115,21 +115,21 @@ export default function Stage3Morse({ onComplete }: StageProps) {
                 ))}
               </div>
               {/* CHAR 번호 */}
-              <span className="text-green-800 text-xs tracking-[0.3em]">CHAR {li + 1}</span>
+              <span className="text-green-500 text-sm tracking-[0.12em]">CHAR {li + 1}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Input */}
-      <div className="w-full max-w-2xl space-y-3">
+      <div className="tablet-panel max-w-5xl space-y-3">
         <AnimatePresence>
           {status === 'error' && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-red-400 text-glow-red text-sm tracking-widest border border-red-900 bg-red-950/30 px-4 py-2"
+              className="text-red-300 text-glow-red text-base tracking-[0.08em] border border-red-800 bg-red-950/30 px-4 py-2.5"
             >
               ⚠ DECODE FAILED — WRONG ANSWER
             </motion.p>
@@ -151,15 +151,15 @@ export default function Stage3Morse({ onComplete }: StageProps) {
                 maxLength={20}
                 enterKeyHint="send"
                 autoCapitalize="characters"
-                className="terminal-input flex-1 text-2xl tracking-[0.5em] uppercase
-                           placeholder:text-green-900 placeholder:text-base placeholder:tracking-widest"
+                className="terminal-input min-h-12 flex-1 text-2xl tracking-[0.26em] uppercase
+                           placeholder:text-green-700 placeholder:text-lg placeholder:tracking-[0.12em]"
                 autoComplete="off"
                 spellCheck={false}
               />
               <button
                 type="submit"
-                className="min-h-12 shrink-0 px-6 py-2 border border-green-500 text-green-400 text-glow
-                           hover:bg-green-500 hover:text-black transition-all font-bold tracking-widest text-sm"
+                className="min-h-12 shrink-0 px-7 py-2 border border-green-500 text-green-400 text-glow
+                           hover:bg-green-500 hover:text-black transition-all font-bold tracking-[0.08em] text-base"
               >
                 SEND
               </button>
@@ -172,7 +172,7 @@ export default function Stage3Morse({ onComplete }: StageProps) {
               className="flex items-center gap-3 border-2 border-green-400 px-6 py-4 animate-success-pulse"
             >
               <CheckCircle size={24} className="text-green-400" />
-              <span className="text-green-400 text-glow text-xl font-bold tracking-[0.4em]">
+              <span className="text-green-400 text-glow text-xl font-bold tracking-[0.2em]">
                 SIGNAL DECODED
               </span>
             </motion.div>

@@ -46,9 +46,9 @@ export default function HUD({ currentStage, totalStages, onReset }: HUDProps) {
   const showReset = Boolean(onReset && currentStage > 0);
 
   return (
-    <div className="fixed top-3 right-3 z-200 flex flex-col gap-2 text-xs font-mono">
+    <div className="fixed top-3 right-3 z-200 flex flex-col gap-2 font-mono">
       {/* Stage progress */}
-      <div className="hud-widget px-3 py-1.5 rounded text-[10px] tracking-widest">
+      <div className="hud-widget min-h-11 px-3.5 py-2 rounded tablet-label text-green-500">
         <span className="text-green-600">STAGE </span>
         <span className="text-glow font-bold">
           {currentStage + 1}/{totalStages}
@@ -61,17 +61,17 @@ export default function HUD({ currentStage, totalStages, onReset }: HUDProps) {
           type="button"
           onClick={handleResetClick}
           className={`
-            hud-widget px-3 py-2 rounded flex items-center gap-2
-            border border-red-900/70 text-[10px] tracking-widest
+            hud-widget min-h-11 px-3.5 py-2 rounded flex items-center gap-2
+            border border-red-800/80 tablet-label
             transition-all duration-150 select-none
             ${confirmReset
               ? 'bg-red-950/70 text-red-300 border-red-400 text-glow-red animate-pulse'
-              : 'text-red-700 hover:text-red-400 hover:border-red-600'
+              : 'text-red-500 hover:text-red-300 hover:border-red-500'
             }
           `}
           title={confirmReset ? "한 번 더 누르면 초기화됩니다" : "첫 단계로 돌아갑니다"}
         >
-          <RotateCcw size={12} className={confirmReset ? "animate-spin" : ""} />
+          <RotateCcw size={14} className={confirmReset ? "animate-spin" : ""} />
           <span>{confirmReset ? 'CONFIRM ?' : 'RESET'}</span>
         </button>
       )}

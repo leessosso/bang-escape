@@ -153,7 +153,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
   };
 
   return (
-    <div className={`relative flex flex-col items-center justify-center h-full px-6 ${status === 'error' ? 'animate-red-flash' : ''}`}>
+    <div className={`tablet-stage-shell relative mx-auto flex flex-col items-center justify-center h-full px-6 ${status === 'error' ? 'animate-red-flash' : ''}`}>
       {/* Red overlay when error */}
       <AnimatePresence>
         {status === 'error' && (
@@ -168,7 +168,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
         )}
       </AnimatePresence>
 
-      <div className="w-full max-w-2xl space-y-6">
+      <div className="tablet-panel max-w-5xl space-y-6">
         {/* Header */}
         <StageHeader
           badge="STAGE // SYSTEM ACCESS"
@@ -181,7 +181,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
         <div className="border border-green-900 bg-black/80 p-5 rounded font-mono text-sm space-y-1 min-h-[160px]">
           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-green-900">
             <Terminal size={14} className="text-green-600" />
-            <span className="text-green-600 text-xs tracking-widest">root@cctv-server:~#</span>
+            <span className="text-green-500 tablet-fine-text">root@cctv-server:~#</span>
           </div>
           {BOOT_LINES.slice(0, visibleLines).map((line, i) => (
             <motion.p
@@ -206,15 +206,15 @@ export default function Stage0Login({ onComplete }: StageProps) {
               transition={{ duration: 0.4 }}
               className="space-y-4"
             >
-              <p className="text-green-600 text-xs tracking-[0.3em] text-center">
+              <p className="text-green-500 tablet-label text-center">
                 ENTER 4-DIGIT ACCESS CODE
               </p>
-              <p className="text-green-500/80 text-sm text-center">
+              <p className="text-green-500 text-base tracking-[0.06em] text-center">
                 HINT : 올해 등촌교회와 관련있는 구절은?
               </p>
 
               {/* PIN boxes + Keypad side by side */}
-              <div className="flex items-center justify-center gap-8">
+              <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
 
                 {/* 4-digit PIN boxes (세로 배치) */}
                 <div className="flex flex-col gap-3">
@@ -255,7 +255,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                 </div>
 
                 {/* Keypad */}
-                <div className="grid grid-cols-3 gap-2 w-52">
+                <div className="grid grid-cols-3 gap-2.5 w-56">
                   {KEYPAD.map((key, i) => (
                     <motion.button
                       key={i}
@@ -264,7 +264,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                       animate={pressedKey === key ? { scale: 0.88 } : { scale: 1 }}
                       transition={{ duration: 0.1 }}
                       className={`
-                        h-14 text-xl font-bold border tracking-widest
+                        min-h-14 text-xl font-bold border tracking-[0.08em]
                         transition-colors duration-100 select-none
                         ${!key ? 'invisible' : ''}
                         ${key === '⌫'
@@ -290,7 +290,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                     exit={{ opacity: 0 }}
                     className="border border-red-800 bg-red-950/40 p-3"
                   >
-                    <p className="text-red-400 text-glow-red text-sm tracking-widest font-bold text-center">
+                    <p className="text-red-300 text-glow-red text-base tracking-[0.08em] font-bold text-center">
                       ⚠ ACCESS DENIED — INVALID CODE
                     </p>
                   </motion.div>
@@ -308,10 +308,10 @@ export default function Stage0Login({ onComplete }: StageProps) {
               animate={{ opacity: 1, scale: 1 }}
               className="border-2 border-green-400 p-6 text-center animate-success-pulse"
             >
-              <p className="text-green-400 text-glow text-3xl font-bold tracking-[0.5em]">
+              <p className="text-green-400 text-glow text-3xl font-bold tracking-[0.22em]">
                 ACCESS GRANTED
               </p>
-              <p className="text-green-600 text-sm mt-2 tracking-widest animate-blink">
+              <p className="text-green-500 text-base mt-2 tracking-[0.08em] animate-blink">
                 INITIALIZING RECOVERY PROTOCOL...
               </p>
             </motion.div>

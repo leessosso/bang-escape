@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="bg-black text-green-400 h-[100dvh] w-[100dvw] overflow-hidden antialiased">
+      <body className="bg-black text-green-400 h-[100dvh] w-[100dvw] overflow-hidden">
         {children}
       </body>
     </html>

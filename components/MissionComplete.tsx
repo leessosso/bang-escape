@@ -33,15 +33,15 @@ export default function MissionComplete({ onNextTeam }: MissionCompleteProps) {
         transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}
       />
 
-      <div className="relative z-10 w-full max-w-2xl px-8 space-y-8 text-center">
+      <div className="relative z-10 tablet-dialog px-8 space-y-8 text-center">
         {/* Title */}
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <p className="text-xs tracking-[0.5em] text-green-700 mb-2">{'// OPERATION COMPLETE'}</p>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-[0.3em] text-glow animate-glitch">
+          <p className="tablet-label text-green-600 mb-2">{'// OPERATION COMPLETE'}</p>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-[0.18em] text-glow animate-glitch">
             MISSION COMPLETE
           </h1>
         </motion.div>
@@ -54,8 +54,8 @@ export default function MissionComplete({ onNextTeam }: MissionCompleteProps) {
           transition={{ delay: 0.5 }}
         >
           <CheckCircle size={18} className="text-green-600" />
-          <p className="text-green-700 text-xs tracking-widest">MISSION STATUS</p>
-          <p className="text-green-400 text-glow text-3xl font-black tracking-widest">
+          <p className="text-green-600 tablet-fine-text">MISSION STATUS</p>
+          <p className="text-green-400 text-glow text-3xl font-black tracking-[0.12em]">
             SUCCESS
           </p>
         </motion.div>
@@ -63,8 +63,8 @@ export default function MissionComplete({ onNextTeam }: MissionCompleteProps) {
         {/* Next team button */}
         <motion.button
           onClick={onNextTeam}
-          className="w-full flex items-center justify-center gap-3 py-4 border-2 border-green-400
-                     text-green-400 text-glow text-xl font-bold tracking-[0.3em]
+          className="w-full min-h-14 flex items-center justify-center gap-3 py-4 border-2 border-green-400
+                     text-green-400 text-glow text-xl font-bold tracking-[0.14em]
                      hover:bg-green-400 hover:text-black transition-all duration-200 active:scale-95"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -78,7 +78,7 @@ export default function MissionComplete({ onNextTeam }: MissionCompleteProps) {
         </motion.button>
 
         <motion.p
-          className="text-green-800 text-xs tracking-widest"
+          className="text-green-600 text-sm tracking-[0.08em]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}

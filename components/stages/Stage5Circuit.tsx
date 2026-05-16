@@ -128,7 +128,7 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
   const G = CIRCUIT_GRID_SIZE;
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 gap-5">
+    <div className="tablet-stage-shell mx-auto flex flex-col items-center justify-center h-full px-4 gap-5">
       {/* Header */}
       <StageHeader
         badge="STAGE // CIRCUIT RESTORE"
@@ -149,7 +149,7 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
           }}
         >
           <Zap size={14} className="text-green-400 text-glow animate-pulse" />
-          <span className="text-[10px] text-green-500 tracking-widest font-bold">IN</span>
+          <span className="text-sm text-green-500 tracking-[0.08em] font-bold">IN</span>
           <div className="w-5 h-0.5 bg-green-500" style={{ boxShadow: '0 0 6px #00ff41' }} />
         </div>
 
@@ -204,12 +204,12 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
           }}
         >
           <div className="w-5 h-0.5 bg-green-500" style={{ boxShadow: '0 0 6px #00ff41' }} />
-          <span className="text-[10px] text-green-500 tracking-widest font-bold">OUT</span>
-          <Zap size={14} className={`transition-all ${solved ? 'text-green-400 text-glow' : 'text-green-900'}`} />
+          <span className="text-sm text-green-500 tracking-[0.08em] font-bold">OUT</span>
+          <Zap size={14} className={`transition-all ${solved ? 'text-green-400 text-glow' : 'text-green-700'}`} />
         </div>
       </div>
 
-      <p className="text-green-900 text-xs tracking-widest">
+      <p className="text-green-500 text-sm tracking-[0.08em]">
         CLICK TO ROTATE 90° // {G}×{G} GRID // FIND THE PATH
       </p>
 
@@ -225,12 +225,12 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
             >
               <div className="flex items-center gap-3 text-green-400 text-glow">
                 <CheckCircle size={22} />
-                <span className="text-xl font-bold tracking-[0.4em]">DATA STREAM ONLINE</span>
+                <span className="text-xl font-bold tracking-[0.2em]">DATA STREAM ONLINE</span>
               </div>
               <button
                 onClick={() => { playSound.beep(); onComplete(); }}
-                className="flex items-center gap-2 px-8 py-2 border-2 border-green-400
-                           text-green-400 text-glow font-bold tracking-widest text-sm
+                className="min-h-12 flex items-center gap-2 px-8 py-2 border-2 border-green-400
+                           text-green-400 text-glow font-bold tracking-[0.08em] text-base
                            hover:bg-green-400 hover:text-black transition-all active:scale-95"
               >
                 FINALIZE RECOVERY
@@ -238,7 +238,7 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
               </button>
             </motion.div>
           ) : (
-            <motion.p key="hint" className="text-green-900 text-xs tracking-widest">
+            <motion.p key="hint" className="text-green-500 text-sm tracking-[0.08em]">
               ROUTING ALGORITHM... SEARCHING FOR VALID PATH
             </motion.p>
           )}

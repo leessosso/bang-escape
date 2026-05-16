@@ -113,7 +113,7 @@ export default function EscapeRoomPage() {
   if (!gameState) {
     return (
       <div className="flex h-[100dvh] items-center justify-center bg-black">
-        <p className="text-green-600 text-sm tracking-[0.4em] animate-pulse">
+        <p className="text-green-500 text-base tracking-[0.2em] animate-pulse">
           LOADING SYSTEM...
         </p>
       </div>
@@ -146,9 +146,9 @@ export default function EscapeRoomPage() {
       </div>
 
       {/* Stage label */}
-      <div className="fixed bottom-[calc(0.75rem+var(--stage-safe-bottom))] left-3 z-150 hidden text-green-800 text-[10px] tracking-[0.3em] md:block">
+      <div className="fixed bottom-[calc(0.75rem+var(--stage-safe-bottom))] left-4 z-150 hidden text-green-600 tablet-label md:block">
         {STAGE_REGISTRY.map((s, i) => (
-          <span key={s.id} className={i === currentStage ? 'text-green-500' : ''}>
+          <span key={s.id} className={i === currentStage ? 'text-green-400 text-glow' : ''}>
             {i === currentStage ? `[${s.label}]` : s.label}
             {i < STAGE_REGISTRY.length - 1 ? ' → ' : ''}
           </span>

@@ -46,25 +46,25 @@ export default function FullscreenGate() {
 
   return (
     <div className="fixed inset-0 z-[20000] flex items-center justify-center bg-black/95 px-6">
-      <div className="w-full max-w-xl border-2 border-green-500 bg-black/90 p-6 text-center shadow-[0_0_32px_rgba(0,255,65,0.18)]">
-        <p className="mb-2 text-[10px] tracking-[0.45em] text-green-700">
+      <div className="tablet-dialog border-2 border-green-500 bg-black/90 p-7 text-center shadow-[0_0_32px_rgba(0,255,65,0.18)]">
+        <p className="mb-2 tablet-label text-green-600">
           {'// TABLET DISPLAY MODE'}
         </p>
-        <h1 className="text-2xl font-black tracking-[0.25em] text-green-400 text-glow sm:text-3xl">
+        <h1 className="text-3xl font-black tracking-[0.2em] text-green-400 text-glow sm:text-4xl">
           전체화면으로 시작
         </h1>
-        <p className="mt-4 text-sm leading-7 tracking-widest text-green-600">
+        <p className="mt-4 text-base leading-8 tracking-[0.1em] text-green-500">
           태블릿 Chrome에서 주소창을 숨기고 퍼즐 화면을 크게 보여주려면 아래 버튼을 눌러주세요.
         </p>
 
         {!isSupported && (
-          <p className="mt-4 border border-yellow-700 bg-yellow-950/30 px-4 py-3 text-xs leading-6 tracking-widest text-yellow-400">
+          <p className="mt-4 border border-yellow-700 bg-yellow-950/30 px-4 py-3 text-sm leading-7 tracking-[0.1em] text-yellow-300">
             이 브라우저는 전체화면 API를 지원하지 않습니다. Chrome 메뉴에서 홈 화면에 추가한 뒤 실행하면 더 넓게 볼 수 있습니다.
           </p>
         )}
 
         {errorMessage && (
-          <p className="mt-4 border border-red-900 bg-red-950/40 px-4 py-3 text-xs tracking-widest text-red-400">
+          <p className="mt-4 border border-red-900 bg-red-950/40 px-4 py-3 text-sm tracking-[0.1em] text-red-300">
             {errorMessage}
           </p>
         )}
@@ -73,14 +73,14 @@ export default function FullscreenGate() {
           <button
             type="button"
             onClick={enterFullscreen}
-            className="min-h-14 flex-1 border-2 border-green-400 px-5 py-3 text-sm font-bold tracking-[0.3em] text-green-400 text-glow transition-all hover:bg-green-400 hover:text-black active:scale-[0.98]"
+            className="min-h-14 flex-1 border-2 border-green-400 px-5 py-3 text-base font-bold tracking-[0.2em] text-green-400 text-glow transition-all hover:bg-green-400 hover:text-black active:scale-[0.98]"
           >
             FULLSCREEN START
           </button>
           <button
             type="button"
             onClick={() => setIsDismissed(true)}
-            className="min-h-14 border border-green-900 px-5 py-3 text-xs font-bold tracking-[0.25em] text-green-700 transition-all hover:border-green-700 hover:text-green-500 active:scale-[0.98] sm:w-40"
+            className="min-h-14 border border-green-900 px-5 py-3 text-sm font-bold tracking-[0.16em] text-green-600 transition-all hover:border-green-700 hover:text-green-500 active:scale-[0.98] sm:w-44"
           >
             그냥 진행
           </button>

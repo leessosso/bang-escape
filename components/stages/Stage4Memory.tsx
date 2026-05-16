@@ -163,7 +163,7 @@ export default function StageMemory({ onComplete }: StageProps) {
   const isRecall = phase === 'recall';
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6 gap-6">
+    <div className="tablet-panel max-w-5xl mx-auto flex flex-col items-center justify-center h-full px-6 gap-6">
       {/* Header */}
       <StageHeader
         badge="STAGE // MEMORY INTEGRITY CHECK"
@@ -173,12 +173,12 @@ export default function StageMemory({ onComplete }: StageProps) {
       />
 
       {/* Round indicator */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {MEMORY_ROUNDS.map((r, i) => (
           <div
             key={i}
-            className={`px-4 py-1 border text-xs tracking-widest font-bold
-                        ${i < round ? 'border-green-700 text-green-700' :
+            className={`px-4 py-1.5 border text-sm tracking-[0.08em] font-bold
+                        ${i < round ? 'border-green-700 text-green-600' :
                           i === round ? 'border-green-400 text-green-400 text-glow' :
                           'border-green-950 text-green-950'}`}
           >
@@ -193,20 +193,20 @@ export default function StageMemory({ onComplete }: StageProps) {
         {phase === 'intro' && (
           <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="text-center space-y-4">
-            <p className="text-green-500 tracking-widest">라운드 {round + 1} 준비 완료</p>
+            <p className="text-green-500 text-base tracking-[0.08em]">라운드 {round + 1} 준비 완료</p>
             {isSplitFlashRound ? (
-              <p className="text-yellow-500 text-sm tracking-widest">
+              <p className="text-yellow-300 text-base tracking-[0.08em]">
                 ⚠ CAUTION: 총 {requiredCount}개의 칸을 <span className="text-yellow-400 font-bold">{cellsPerFlash}개씩 {flashCount}회 분할 플래시</span>로 표시합니다
               </p>
             ) : (
-              <p className="text-green-700 text-sm tracking-widest">
+              <p className="text-green-600 text-base tracking-[0.08em]">
                 {requiredCount}개의 칸이 {showMs / 1000}초간 표시됩니다
               </p>
             )}
             <button
               onClick={() => startRound(round)}
-              className="px-8 py-3 border-2 border-green-400 text-green-400 text-glow
-                         font-bold tracking-widest hover:bg-green-400 hover:text-black transition-all"
+              className="min-h-12 px-8 py-3 border-2 border-green-400 text-green-400 text-glow
+                         font-bold tracking-[0.08em] hover:bg-green-400 hover:text-black transition-all"
             >
               START ROUND {round + 1}
             </button>
@@ -214,7 +214,7 @@ export default function StageMemory({ onComplete }: StageProps) {
         )}
         {isMemorize && (
           <motion.p key={`memorize-${round}-${memFlash}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-green-400 text-glow text-lg tracking-[0.4em] font-bold animate-pulse">
+            className="text-green-400 text-glow text-xl tracking-[0.2em] font-bold animate-pulse">
             {isSplitFlashRound
               ? `FLASH ${memFlash + 1}/${flashCount} (${currentMemorizeCellSet.size} CELLS) — MEMORIZING... ${(countdownMs / 1000).toFixed(1)}s`
               : `MEMORIZING... ${(countdownMs / 1000).toFixed(1)}s`}
@@ -222,25 +222,25 @@ export default function StageMemory({ onComplete }: StageProps) {
         )}
         {isRecall && (
           <motion.p key="recall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-green-500 text-sm tracking-widest">
+            className="text-green-500 text-base tracking-[0.08em]">
             선택: {selected.size} / {requiredCount}칸 — 틀려도 괜찮아, 팀원과 상의하라 (시도: {attempts + 1}회)
           </motion.p>
         )}
         {phase === 'wrong' && (
           <motion.p key="wrong" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-red-400 text-glow-red tracking-widest font-bold">
+            className="text-red-300 text-glow-red tracking-[0.08em] font-bold">
             ⚠ PATTERN MISMATCH — RETRY
           </motion.p>
         )}
         {phase === 'round-pass' && (
           <motion.p key="pass" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="text-green-400 text-glow tracking-widest font-bold text-lg">
+            className="text-green-400 text-glow tracking-[0.12em] font-bold text-xl">
             ✓ ROUND {round + 1} CLEARED
           </motion.p>
         )}
         {phase === 'complete' && (
           <motion.div key="complete" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-3 text-green-400 text-glow text-xl font-bold tracking-[0.3em]">
+            className="flex items-center gap-3 text-green-400 text-glow text-xl font-bold tracking-[0.18em]">
             <CheckCircle size={28} />
             MEMORY VERIFIED
           </motion.div>
@@ -249,7 +249,7 @@ export default function StageMemory({ onComplete }: StageProps) {
 
       {/* Grid */}
       <div
-        className="grid gap-1.5 p-3 border border-green-900 bg-black/70"
+        className="grid gap-1.5 p-3.5 border border-green-900 bg-black/70"
         style={{ gridTemplateColumns: `repeat(${MEMORY_GRID_SIZE}, minmax(0, 1fr))` }}
       >
         {Array.from({ length: TOTAL_CELLS }).map((_, idx) => {
@@ -275,7 +275,7 @@ export default function StageMemory({ onComplete }: StageProps) {
               key={idx}
               onClick={() => handleCellClick(idx)}
               className={`w-13 h-13 sm:w-16 sm:h-16 border-2 transition-all duration-100 ${cellStyle}`}
-              style={{ width: 'clamp(48px, 7vw, 64px)', height: 'clamp(48px, 7vw, 64px)' }}
+              style={{ width: 'clamp(50px, 7vw, 68px)', height: 'clamp(50px, 7vw, 68px)' }}
               whileTap={isRecall ? { scale: 0.9 } : {}}
             >
               {isMemorize && isTarget && (
@@ -301,30 +301,30 @@ export default function StageMemory({ onComplete }: StageProps) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="flex gap-4"
+            className="flex flex-wrap justify-center gap-3"
           >
             <button
               onClick={() => { setSelected(new Set()); playSound.beep(); }}
-              className="flex items-center gap-2 px-4 py-2 border border-green-800 text-green-700
-                         hover:border-green-600 hover:text-green-500 transition-all text-sm tracking-widest"
+              className="min-h-11 flex items-center gap-2 px-4 py-2 border border-green-700 text-green-500
+                         hover:border-green-500 hover:text-green-400 transition-all text-base tracking-[0.08em]"
             >
               <RotateCcw size={14} />
               RESET
             </button>
             <button
               onClick={handleReplayPattern}
-              className="flex items-center gap-2 px-4 py-2 border border-yellow-700 text-yellow-500
-                         hover:border-yellow-500 hover:text-yellow-400 transition-all text-sm tracking-widest"
+              className="min-h-11 flex items-center gap-2 px-4 py-2 border border-yellow-700 text-yellow-400
+                         hover:border-yellow-500 hover:text-yellow-300 transition-all text-base tracking-[0.08em]"
             >
               REPLAY PATTERN
             </button>
             <button
               onClick={handleSubmit}
               disabled={selected.size !== requiredCount}
-              className="flex items-center gap-2 px-6 py-2 border-2 border-green-400 text-green-400
-                         text-glow font-bold tracking-widest text-sm
+              className="min-h-11 flex items-center gap-2 px-6 py-2 border-2 border-green-400 text-green-400
+                         text-glow font-bold tracking-[0.08em] text-base
                          hover:bg-green-400 hover:text-black transition-all
-                         disabled:border-green-900 disabled:text-green-900 disabled:cursor-not-allowed"
+                         disabled:border-green-800 disabled:text-green-700 disabled:cursor-not-allowed"
             >
               SUBMIT ({selected.size}/{requiredCount})
             </button>

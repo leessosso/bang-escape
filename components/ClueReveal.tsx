@@ -71,18 +71,18 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
         transition={{ repeat: Infinity, duration: 2.2, delay: 0.4 }}
       />
 
-      <div className="relative z-10 w-full max-w-4xl max-h-[96vh] flex flex-col gap-4">
+      <div className="relative z-10 tablet-dialog max-h-[96vh] flex flex-col gap-4">
         <motion.div
           initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.12 }}
           className="text-center space-y-2 shrink-0"
         >
-          <p className="text-[10px] tracking-[0.45em] text-green-700">{meta.en}</p>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-[0.25em] text-glow text-green-400">
+          <p className="tablet-label text-green-600">{meta.en}</p>
+          <h2 className="text-2xl sm:text-3xl font-black tracking-[0.2em] text-glow text-green-400">
             {meta.ko}
           </h2>
-          <p className="text-green-800 text-xs tracking-widest">{meta.afterStageLabel}</p>
+          <p className="text-green-600 tablet-fine-text">{meta.afterStageLabel}</p>
         </motion.div>
 
         <motion.div
@@ -91,7 +91,7 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.28 }}
         >
-          <div className="flex items-center gap-2 text-green-700 text-xs tracking-[0.35em]">
+          <div className="flex items-center gap-2 text-green-600 tablet-label">
             <FileQuestion size={16} className="shrink-0" />
             <span>DECRYPTED FRAGMENT</span>
           </div>
@@ -106,7 +106,7 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
               priority
               className="mx-auto max-h-[74vh] w-auto max-w-full rounded object-contain sm:max-h-[76vh]"
             />
-            <p className="mt-3 text-[10px] text-green-900 font-mono tabular-nums">
+            <p className="mt-3 text-sm text-green-700 font-mono tracking-[0.08em] tabular-nums">
               SLOT_INDEX · {milestone === 1 ? '01' : '02'}
             </p>
           </div>
@@ -115,8 +115,8 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
         <motion.button
           type="button"
           onClick={onContinue}
-          className="shrink-0 w-full flex items-center justify-center gap-2 py-3.5 border-2 border-green-500
-                     text-green-400 text-glow text-sm font-bold tracking-[0.35em]
+          className="shrink-0 w-full min-h-12 flex items-center justify-center gap-2 py-3.5 border-2 border-green-500
+                     text-green-400 text-glow text-base font-bold tracking-[0.14em]
                      hover:bg-green-500 hover:text-black transition-all duration-200 active:scale-[0.98]"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

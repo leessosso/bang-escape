@@ -37,7 +37,7 @@ export default function StageCipher({ onComplete }: StageProps) {
   };
 
   return (
-    <div className="flex min-h-full flex-col items-center justify-center px-6 py-6 gap-6 sm:gap-8">
+    <div className="tablet-stage-shell mx-auto flex min-h-full flex-col items-center justify-center px-6 py-6 gap-6 sm:gap-8">
       {/* Header */}
       <StageHeader
         badge="STAGE // ENCRYPTION BYPASS"
@@ -47,13 +47,13 @@ export default function StageCipher({ onComplete }: StageProps) {
       />
 
       {/* Encrypted message */}
-      <div className="text-center space-y-4">
-        <p className="text-green-700 text-xs tracking-[0.4em]">{'// ENCRYPTED MESSAGE'}</p>
+      <div className="tablet-panel max-w-4xl text-center space-y-4">
+        <p className="text-green-600 tablet-label">{'// ENCRYPTED MESSAGE'}</p>
         <div className="flex gap-2 justify-center sm:gap-4">
           {CIPHER_ENCRYPTED.split('').map((char, i) => (
             <div
               key={i}
-              className="flex h-16 w-12 items-center justify-center border-2 border-green-700 sm:h-20 sm:w-16
+              className="flex h-16 w-12 items-center justify-center border-2 border-green-700 sm:h-20 sm:w-16 md:h-22 md:w-18
                          text-4xl font-black text-green-400 tracking-wider bg-black/60"
               style={{ boxShadow: '0 0 8px rgba(0,255,65,0.1)' }}
             >
@@ -61,20 +61,20 @@ export default function StageCipher({ onComplete }: StageProps) {
             </div>
           ))}
         </div>
-        <p className="text-green-800 text-xs tracking-widest">
+        <p className="text-green-500 text-base tracking-[0.08em]">
           복호화된 단어를 입력하면 다음 단계로 진행됩니다
         </p>
       </div>
 
       {/* Input */}
-      <div className="w-full max-w-2xl space-y-3">
+      <div className="tablet-panel max-w-4xl space-y-3">
         <AnimatePresence>
           {status === 'error' && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-red-400 text-glow-red text-sm tracking-widest border border-red-900 bg-red-950/30 px-4 py-2"
+              className="text-red-300 text-glow-red text-base tracking-[0.08em] border border-red-800 bg-red-950/30 px-4 py-2.5"
             >
               ⚠ DECRYPTION FAILED — WRONG KEY
             </motion.p>
@@ -96,15 +96,15 @@ export default function StageCipher({ onComplete }: StageProps) {
                 maxLength={20}
                 enterKeyHint="done"
                 autoCapitalize="characters"
-                className="terminal-input flex-1 text-2xl tracking-[0.4em] uppercase
-                           placeholder:text-green-900 placeholder:text-base"
+                className="terminal-input min-h-12 flex-1 text-2xl tracking-[0.26em] uppercase
+                           placeholder:text-green-700 placeholder:text-lg placeholder:tracking-[0.12em]"
                 autoComplete="off"
                 spellCheck={false}
               />
               <button
                 type="submit"
-                className="min-h-12 shrink-0 px-6 py-2 border border-green-500 text-green-400 text-glow
-                           hover:bg-green-500 hover:text-black transition-all font-bold tracking-widest text-sm"
+                className="min-h-12 shrink-0 px-7 py-2 border border-green-500 text-green-400 text-glow
+                           hover:bg-green-500 hover:text-black transition-all font-bold tracking-[0.08em] text-base"
               >
                 DECRYPT
               </button>
@@ -117,7 +117,7 @@ export default function StageCipher({ onComplete }: StageProps) {
               className="flex items-center gap-3 border-2 border-green-400 px-6 py-4 animate-success-pulse"
             >
               <CheckCircle size={24} className="text-green-400" />
-              <span className="text-green-400 text-glow text-xl font-bold tracking-[0.4em]">
+              <span className="text-green-400 text-glow text-xl font-bold tracking-[0.2em]">
                 CIPHER BROKEN
               </span>
             </motion.div>

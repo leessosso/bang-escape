@@ -229,7 +229,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full max-h-full overflow-hidden px-4 py-2 gap-2">
+    <div className="flex flex-col items-center justify-center h-full max-h-full overflow-hidden px-4 py-3 gap-3">
       <StageHeader
         badge="STAGE // DEBUG CONSOLE"
         icon={<Bug size={24} />}
@@ -237,39 +237,39 @@ export default function StageFrequency({ onComplete }: StageProps) {
         subtitle={<>&gt; 각 라운드의 버그 2개를 수정하고 <span className="text-green-400">RUN TEST</span>로 통과하라</>}
       />
 
-      <div className="w-full max-w-5xl border border-green-900 bg-black/60 px-3 py-2">
-        <div className="flex items-center gap-2 text-green-600 text-xs tracking-widest mb-1">
+      <div className="tablet-stage-shell border border-green-900 bg-black/60 px-4 py-2.5">
+        <div className="flex items-center gap-2 text-green-500 tablet-fine-text mb-1">
           <Lightbulb size={12} />
           RULES (MEDIUM)
         </div>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-green-700 tracking-wide">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-green-600 tracking-[0.08em]">
           <span>1) 빈칸 A/B 선택</span>
           <span>2) RUN TEST</span>
           <span>3) 실패 시 줄 번호 힌트 확인</span>
         </div>
       </div>
 
-      <div className="w-full max-w-5xl h-[68vh] max-h-[560px] min-h-[460px] border border-green-900 bg-black/70 p-3 grid lg:grid-cols-[1.1fr_0.9fr] gap-2 overflow-hidden">
+      <div className="tablet-stage-shell h-[68vh] max-h-[620px] min-h-[500px] border border-green-900 bg-black/70 p-3.5 grid lg:grid-cols-[1.1fr_0.9fr] gap-3 overflow-hidden">
         <div className="min-h-0 flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <p className="text-green-500 text-sm tracking-widest font-bold">{round.title}</p>
-            <p className="text-green-700 text-xs tracking-widest">ROUND {roundIndex + 1}/{ROUNDS.length}</p>
+            <p className="text-green-400 text-base tracking-[0.1em] font-bold">{round.title}</p>
+            <p className="text-green-600 tablet-fine-text">ROUND {roundIndex + 1}/{ROUNDS.length}</p>
           </div>
-          <p className="text-green-700 text-xs tracking-widest">{round.mission}</p>
+          <p className="text-green-600 text-sm tracking-[0.08em]">{round.mission}</p>
 
           <div className="flex-1 min-h-0 border border-green-950 bg-black p-2.5 font-mono text-sm leading-tight text-green-500 space-y-0.5 overflow-auto">
             {renderedLines.map((line, idx) => (
               <div key={`${idx}-${line}`} className="whitespace-pre">
-                <span className="text-green-900 mr-3">{String(idx + 1).padStart(2, '0')}</span>
+                <span className="text-green-700 mr-3">{String(idx + 1).padStart(2, '0')}</span>
                 {line}
               </div>
             ))}
           </div>
 
           <div className="border border-green-950 bg-black/70 px-2.5 py-2">
-            <p className="text-xs text-green-700 tracking-widest mb-1">TEST CASES</p>
+            <p className="text-sm text-green-600 tracking-[0.1em] mb-1">TEST CASES</p>
             {round.testCases.map((test) => (
-              <p key={test} className="text-xs text-green-600 tracking-wide">{test}</p>
+              <p key={test} className="text-sm text-green-500 tracking-[0.06em]">{test}</p>
             ))}
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
           <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-1.5">
             {round.slots.map((slot) => (
               <div key={slot.key} className="border border-green-900 bg-black/60 p-2.5 space-y-1.5">
-                <p className="text-xs text-green-500 tracking-widest font-bold">
+                <p className="text-sm text-green-500 tracking-[0.1em] font-bold">
                   SLOT {slot.key} - {slot.prompt}
                 </p>
                 <div className="grid grid-cols-2 gap-1">
@@ -286,7 +286,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
                     <button
                       key={choice.id}
                       onClick={() => handleSelect(slot.key, choice.id)}
-                      className={`text-left px-2 py-1.5 border text-xs tracking-wide transition-all ${
+                      className={`text-left px-2 py-1.5 border text-sm tracking-[0.06em] transition-all ${
                         answers[slot.key] === choice.id
                           ? 'border-green-400 text-green-300 bg-green-950/40'
                           : 'border-green-900 text-green-700 hover:border-green-700'
@@ -316,8 +316,8 @@ export default function StageFrequency({ onComplete }: StageProps) {
                     </div>
                     <button
                       onClick={() => { playSound.beep(); onComplete(); }}
-                      className="flex items-center gap-2 px-5 py-2 border-2 border-green-400
-                                 text-green-400 text-glow font-bold tracking-widest text-xs
+                      className="min-h-11 flex items-center gap-2 px-5 py-2 border-2 border-green-400
+                                 text-green-400 text-glow font-bold tracking-[0.08em] text-base
                                  hover:bg-green-400 hover:text-black transition-all active:scale-95"
                     >
                       PROCEED TO NEXT MODULE
@@ -336,8 +336,8 @@ export default function StageFrequency({ onComplete }: StageProps) {
                     </p>
                     <button
                       onClick={nextRound}
-                      className="flex items-center gap-2 px-5 py-2 border-2 border-green-400
-                                 text-green-400 text-glow font-bold tracking-widest text-xs
+                      className="min-h-11 flex items-center gap-2 px-5 py-2 border-2 border-green-400
+                                 text-green-400 text-glow font-bold tracking-[0.08em] text-base
                                  hover:bg-green-400 hover:text-black transition-all active:scale-95"
                     >
                       NEXT CHALLENGE
@@ -353,11 +353,11 @@ export default function StageFrequency({ onComplete }: StageProps) {
                   >
                     {result === 'wrong' && (
                       <div className="space-y-1">
-                        <p className="text-red-500 text-sm tracking-widest font-bold text-center">
+                        <p className="text-red-300 text-base tracking-[0.1em] font-bold text-center">
                           ✗ TEST FAILED (ATTEMPT {attempts})
                         </p>
                         {wrongHints.map((hint) => (
-                          <p key={hint} className="text-yellow-500 text-xs tracking-widest text-center">
+                          <p key={hint} className="text-yellow-300 text-sm tracking-[0.08em] text-center">
                             HINT: {hint}
                           </p>
                         ))}
@@ -365,8 +365,8 @@ export default function StageFrequency({ onComplete }: StageProps) {
                     )}
                     <button
                       onClick={runTest}
-                      className="flex items-center gap-2 px-5 py-2 border-2 border-green-700
-                                 text-green-500 font-bold tracking-widest text-xs
+                      className="min-h-11 flex items-center gap-2 px-5 py-2 border-2 border-green-700
+                                 text-green-500 font-bold tracking-[0.08em] text-base
                                  hover:border-green-500 hover:text-green-400 transition-all active:scale-95"
                     >
                       RUN TEST
