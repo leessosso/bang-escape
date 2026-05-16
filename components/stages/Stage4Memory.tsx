@@ -121,9 +121,16 @@ export default function StageMemory({ onComplete }: StageProps) {
     });
   };
 
+  const handleReplayPattern = useCallback(() => {
+    if (phase !== 'recall') return;
+    playSound.beep();
+    setWrongCells(new Set());
+    setMemFlash(0);
+    setPhase('memorize');
+  }, [phase]);
+
   // 제출
   const handleSubmit = () => {
-    const correct = MEMORY_ROUNDS[round];
     const isCorrect =
       selected.size === correctSet.size &&
       Array.from(selected).every((i) => correctSet.has(i));
@@ -141,10 +148,9 @@ export default function StageMemory({ onComplete }: StageProps) {
         }, 1800);
       }
     } else {
-      // 틀린 칸 표시
+      // 사용자가 선택한 칸 중 오답만 표시
       const wrong = new Set<number>();
       selected.forEach((i) => { if (!correctSet.has(i)) wrong.add(i); });
-      correct.forEach((i) => { if (!selected.has(i)) wrong.add(i); });
       setWrongCells(wrong);
       setPhase('wrong');
       setAttempts((a) => a + 1);
@@ -304,6 +310,13 @@ export default function StageMemory({ onComplete }: StageProps) {
             >
               <RotateCcw size={14} />
               RESET
+            </button>
+            <button
+              onClick={handleReplayPattern}
+              className="flex items-center gap-2 px-4 py-2 border border-yellow-700 text-yellow-500
+                         hover:border-yellow-500 hover:text-yellow-400 transition-all text-sm tracking-widest"
+            >
+              REPLAY PATTERN
             </button>
             <button
               onClick={handleSubmit}
