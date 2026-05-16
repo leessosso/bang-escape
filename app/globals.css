@@ -8,10 +8,12 @@
   --green-glow: rgba(0, 255, 65, 0.4);
   --bg: #000000;
   --red-alert: #ff0033;
+  --stage-safe-bottom: max(env(safe-area-inset-bottom), env(keyboard-inset-bottom, 0px));
 }
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -22,6 +24,13 @@ body {
   overflow: hidden;
   height: 100%;
   width: 100%;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+button,
+input {
+  touch-action: manipulation;
 }
 
 /* ─── CRT Scanline overlay ─── */
@@ -214,7 +223,7 @@ body {
   border-bottom: 2px solid var(--green);
   color: var(--green);
   font-family: inherit;
-  font-size: inherit;
+  font-size: max(16px, 1em);
   outline: none;
   caret-color: var(--green);
 }

@@ -111,7 +111,7 @@ export default function EscapeRoomPage() {
   // Loading state (hydration)
   if (!gameState) {
     return (
-      <div className="flex items-center justify-center h-screen bg-black">
+      <div className="flex h-[100dvh] items-center justify-center bg-black">
         <p className="text-green-600 text-sm tracking-[0.4em] animate-pulse">
           LOADING SYSTEM...
         </p>
@@ -121,7 +121,7 @@ export default function EscapeRoomPage() {
 
   return (
     <div
-      className="relative h-screen w-screen overflow-hidden bg-black animate-flicker"
+      className="relative h-[100dvh] w-[100dvw] overflow-hidden bg-black animate-flicker"
       style={{ fontFamily: "'JetBrains Mono', 'Courier New', monospace" }}
     >
       <CRTOverlay />
@@ -144,7 +144,7 @@ export default function EscapeRoomPage() {
       </div>
 
       {/* Stage label */}
-      <div className="fixed bottom-3 left-3 z-150 text-green-800 text-[10px] tracking-[0.3em]">
+      <div className="fixed bottom-[calc(0.75rem+var(--stage-safe-bottom))] left-3 z-150 hidden text-green-800 text-[10px] tracking-[0.3em] md:block">
         {STAGE_REGISTRY.map((s, i) => (
           <span key={s.id} className={i === currentStage ? 'text-green-500' : ''}>
             {i === currentStage ? `[${s.label}]` : s.label}
@@ -156,7 +156,7 @@ export default function EscapeRoomPage() {
       {/* Main stage content */}
       <AnimatePresence mode="wait">
         <StageTransition stageKey={currentStage}>
-          <div className="h-screen w-screen">
+          <div className="h-[100dvh] w-[100dvw] overflow-y-auto overscroll-contain pb-[calc(1rem+var(--stage-safe-bottom))] pt-[env(safe-area-inset-top)]">
             <StageComponent {...stageProps} />
           </div>
         </StageTransition>

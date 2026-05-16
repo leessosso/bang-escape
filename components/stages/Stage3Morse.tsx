@@ -54,20 +54,23 @@ export default function Stage3Morse({ onComplete }: StageProps) {
   const [activeIdx, setActiveIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const scrollInputIntoView = () => {
+    window.setTimeout(() => {
+      inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 120);
+  };
+
   useEffect(() => {
     let i = 0;
-    let focusTimeout: ReturnType<typeof setTimeout> | null = null;
     const id = setInterval(() => {
       setActiveIdx(i);
       if (i >= MORSE_SYMBOLS.length - 1) {
         clearInterval(id);
-        focusTimeout = setTimeout(() => inputRef.current?.focus(), 300);
       }
       i++;
     }, 300);
     return () => {
       clearInterval(id);
-      if (focusTimeout) clearTimeout(focusTimeout);
     };
   }, []);
 
@@ -135,22 +138,27 @@ export default function Stage3Morse({ onComplete }: StageProps) {
 
         <AnimatePresence mode="wait">
           {status !== 'success' ? (
-            <form key="form" onSubmit={handleSubmit} className="flex gap-3 items-center">
+            <form key="form" onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <span className="text-green-500 text-xl shrink-0">&gt;_</span>
               <input
                 ref={inputRef}
                 type="text"
+                inputMode="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value.replace(/[^a-zA-Z]/g, ''))}
+                onFocus={scrollInputIntoView}
                 placeholder="DECODED WORD"
                 maxLength={20}
+                enterKeyHint="send"
+                autoCapitalize="characters"
                 className="terminal-input flex-1 text-2xl tracking-[0.5em] uppercase
                            placeholder:text-green-900 placeholder:text-base placeholder:tracking-widest"
                 autoComplete="off"
+                spellCheck={false}
               />
               <button
                 type="submit"
-                className="shrink-0 px-6 py-2 border border-green-500 text-green-400 text-glow
+                className="min-h-12 shrink-0 px-6 py-2 border border-green-500 text-green-400 text-glow
                            hover:bg-green-500 hover:text-black transition-all font-bold tracking-widest text-sm"
               >
                 SEND

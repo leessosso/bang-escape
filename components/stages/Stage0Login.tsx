@@ -50,7 +50,6 @@ export default function Stage0Login({ onComplete }: StageProps) {
         clearInterval(id);
         setTimeout(() => {
           setBootDone(true);
-          inputRefs.current[0]?.focus();
         }, 300);
       }
     }, 280);
@@ -68,7 +67,6 @@ export default function Stage0Login({ onComplete }: StageProps) {
       setTimeout(() => {
         setStatus('idle');
         setDigits(createEmptyDigits());
-        inputRefs.current[0]?.focus();
       }, 1500);
     }
   }, [onComplete]);
@@ -122,7 +120,6 @@ export default function Stage0Login({ onComplete }: StageProps) {
         const idx = getLastFilledIndex(next);
         if (idx < 0) return next;
         next[idx] = '';
-        inputRefs.current[idx]?.focus();
         return next;
       });
       return;
@@ -136,7 +133,6 @@ export default function Stage0Login({ onComplete }: StageProps) {
     const next = [...digits];
     next[emptyIdx] = key;
     setDigits(next);
-    inputRefs.current[Math.min(emptyIdx + 1, PIN_LENGTH - 1)]?.focus();
 
     if (emptyIdx === PIN_LENGTH - 1) {
       const code = next.join('');
@@ -231,12 +227,15 @@ export default function Stage0Login({ onComplete }: StageProps) {
                       <input
                         ref={(el) => { inputRefs.current[i] = el; }}
                         type="text"
-                        inputMode="numeric"
+                        inputMode="none"
                         value={digit}
                         onChange={(e) => handleChange(i, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(i, e)}
                         onPaste={handlePaste}
                         maxLength={2}
+                        readOnly
+                        tabIndex={-1}
+                        aria-label={`PIN digit ${i + 1}`}
                         className={`
                           w-16 h-16 text-center text-3xl font-bold
                           border-2 bg-black/80 outline-none
