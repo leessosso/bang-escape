@@ -124,6 +124,7 @@ export default function StageMemory({ onComplete }: StageProps) {
   const handleReplayPattern = useCallback(() => {
     if (phase !== 'recall') return;
     playSound.beep();
+    setSelected(new Set());
     setWrongCells(new Set());
     setMemFlash(0);
     setPhase('memorize');
