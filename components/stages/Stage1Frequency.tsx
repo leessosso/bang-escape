@@ -257,7 +257,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
           </div>
           <p className="text-green-600 text-sm tracking-[0.08em]">{round.mission}</p>
 
-          <div className="flex-1 min-h-0 border border-green-950 bg-black p-2.5 font-mono text-sm leading-tight text-green-500 space-y-0.5 overflow-auto">
+          <div className="flex-1 min-h-0 border border-green-950 bg-black p-2.5 font-mono text-base leading-tight text-green-500 space-y-0.5 overflow-auto">
             {renderedLines.map((line, idx) => (
               <div key={`${idx}-${line}`} className="whitespace-pre">
                 <span className="text-green-700 mr-3">{String(idx + 1).padStart(2, '0')}</span>
