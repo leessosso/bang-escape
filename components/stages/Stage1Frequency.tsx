@@ -179,11 +179,13 @@ export default function StageFrequency({ onComplete }: StageProps) {
   const round = ROUNDS[roundIndex];
   const isLastRound = roundIndex === ROUNDS.length - 1;
 
-  const renderedLines = useMemo(() => {
-    const a = getChoiceLabel(round, 'A', answers.A);
-    const b = getChoiceLabel(round, 'B', answers.B);
-    return round.lines.map((line) => line.replace('__A__', a).replace('__B__', b));
-  }, [round, answers.A, answers.B]);
+  const selectedLabels = useMemo(
+    () => ({
+      A: getChoiceLabel(round, 'A', answers.A),
+      B: getChoiceLabel(round, 'B', answers.B),
+    }),
+    [round, answers.A, answers.B]
+  );
 
   const wrongHints = useMemo(() => {
     if (result !== 'wrong') return [];
@@ -243,7 +245,10 @@ export default function StageFrequency({ onComplete }: StageProps) {
           RULES (MEDIUM)
         </div>
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm text-green-600 tracking-[0.08em]">
-          <span>1) 빈칸 A/B 선택</span>
+          <span>
+            1) 빈칸 <span className="text-cyan-300 font-semibold">A</span>/
+            <span className="text-amber-300 font-semibold">B</span> 선택
+          </span>
           <span>2) RUN TEST</span>
           <span>3) 실패 시 줄 번호 힌트 확인</span>
         </div>
@@ -258,10 +263,34 @@ export default function StageFrequency({ onComplete }: StageProps) {
           <p className="text-green-600 text-sm tracking-[0.08em]">{round.mission}</p>
 
           <div className="flex-1 min-h-0 border border-green-950 bg-black p-2.5 font-mono text-base leading-tight text-green-500 space-y-0.5 overflow-auto">
-            {renderedLines.map((line, idx) => (
+            {round.lines.map((line, idx) => (
               <div key={`${idx}-${line}`} className="whitespace-pre">
                 <span className="text-green-700 mr-3">{String(idx + 1).padStart(2, '0')}</span>
-                {line}
+                {line.split(/(__A__|__B__)/g).map((part, partIdx) => {
+                  if (part === '__A__') {
+                    return (
+                      <span
+                        key={`a-${idx}-${partIdx}`}
+                        className="text-cyan-200 font-bold bg-cyan-500/20 border border-cyan-300/50 px-1 rounded-sm"
+                      >
+                        {selectedLabels.A}
+                      </span>
+                    );
+                  }
+
+                  if (part === '__B__') {
+                    return (
+                      <span
+                        key={`b-${idx}-${partIdx}`}
+                        className="text-amber-200 font-bold bg-amber-500/20 border border-amber-300/50 px-1 rounded-sm"
+                      >
+                        {selectedLabels.B}
+                      </span>
+                    );
+                  }
+
+                  return <span key={`t-${idx}-${partIdx}`}>{part}</span>;
+                })}
               </div>
             ))}
           </div>
@@ -277,8 +306,17 @@ export default function StageFrequency({ onComplete }: StageProps) {
         <div className="min-h-0 flex flex-col gap-1.5">
           <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-1.5">
             {round.slots.map((slot) => (
-              <div key={slot.key} className="border border-green-900 bg-black/60 p-2.5 space-y-1.5">
-                <p className="text-sm text-green-500 tracking-[0.1em] font-bold">
+              <div
+                key={slot.key}
+                className={`border bg-black/60 p-2.5 space-y-1.5 ${
+                  slot.key === 'A' ? 'border-cyan-700/80' : 'border-amber-700/80'
+                }`}
+              >
+                <p
+                  className={`text-sm tracking-[0.1em] font-bold ${
+                    slot.key === 'A' ? 'text-cyan-300' : 'text-amber-300'
+                  }`}
+                >
                   SLOT {slot.key} - {slot.prompt}
                 </p>
                 <div className="grid grid-cols-2 gap-1">
@@ -288,8 +326,12 @@ export default function StageFrequency({ onComplete }: StageProps) {
                       onClick={() => handleSelect(slot.key, choice.id)}
                       className={`text-left px-2 py-1.5 border text-sm tracking-[0.06em] transition-all ${
                         answers[slot.key] === choice.id
-                          ? 'border-green-400 text-green-300 bg-green-950/40'
-                          : 'border-green-900 text-green-700 hover:border-green-700'
+                          ? slot.key === 'A'
+                            ? 'border-cyan-300 text-cyan-100 bg-cyan-900/35'
+                            : 'border-amber-300 text-amber-100 bg-amber-900/35'
+                          : slot.key === 'A'
+                            ? 'border-cyan-900 text-cyan-400/75 hover:border-cyan-600'
+                            : 'border-amber-900 text-amber-400/75 hover:border-amber-600'
                       }`}
                     >
                       {choice.label}
