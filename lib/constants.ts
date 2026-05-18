@@ -2,8 +2,8 @@
 export const LOGIN_PASSWORD = '0721'; // 마 7:21
 
 // ─── Stage: Morse Code (Signal Intercept) ────────────────────────
-// 정답: AMEN (모스부호로 표시됨 / 참조표는 현장 QR 코드로 제공)
-export const MORSE_ANSWER = 'AMEN';
+// 정답: GOSPEL (모스부호로 표시됨 / 참조표는 현장 QR 코드로 제공)
+export const MORSE_ANSWER = 'GOSPEL';
 
 export const MORSE_CODE: Record<string, string> = {
   A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.',
