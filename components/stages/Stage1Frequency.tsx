@@ -257,7 +257,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
       <div className="tablet-stage-shell h-[clamp(430px,72vh,780px)] border border-green-900 bg-black/70 p-3.5 grid lg:grid-cols-[1.1fr_0.9fr] gap-3 overflow-hidden">
         <div className="min-h-0 flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <p className="text-green-400 text-base tracking-[0.1em] font-bold">{round.title}</p>
+            <p className="text-green-400 text-base tracking-widest font-bold">{round.title}</p>
             <p className="text-green-600 tablet-fine-text">ROUND {roundIndex + 1}/{ROUNDS.length}</p>
           </div>
           <p className="text-green-600 text-sm tracking-[0.08em]">{round.mission}</p>
@@ -296,7 +296,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
           </div>
 
           <div className="border border-green-950 bg-black/70 px-2.5 py-2">
-            <p className="text-sm text-green-600 tracking-[0.1em] mb-1">TEST CASES</p>
+            <p className="text-sm text-green-600 tracking-widest mb-1">TEST CASES</p>
             {round.testCases.map((test) => (
               <p key={test} className="text-sm text-green-500 tracking-[0.06em]">{test}</p>
             ))}
@@ -313,7 +313,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
                 }`}
               >
                 <p
-                  className={`text-sm tracking-[0.1em] font-bold ${
+                  className={`text-sm tracking-widest font-bold ${
                     slot.key === 'A' ? 'text-cyan-300' : 'text-amber-300'
                   }`}
                 >
@@ -395,7 +395,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
                   >
                     {result === 'wrong' && (
                       <div className="space-y-1">
-                        <p className="text-red-300 text-base tracking-[0.1em] font-bold text-center">
+                        <p className="text-red-300 text-base tracking-widest font-bold text-center">
                           ✗ TEST FAILED (ATTEMPT {attempts})
                         </p>
                         {wrongHints.map((hint) => (
