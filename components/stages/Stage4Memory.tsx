@@ -164,7 +164,7 @@ export default function StageMemory({ onComplete }: StageProps) {
   const isRecall = phase === 'recall';
 
   return (
-    <div className="tablet-panel max-w-5xl mx-auto flex flex-col items-center justify-center h-full px-6 gap-6">
+    <div className="tablet-stage-shell mx-auto flex flex-col items-center justify-center h-full px-6 gap-6">
       {/* Header */}
       <StageHeader
         badge="STAGE // MEMORY INTEGRITY CHECK"
@@ -276,7 +276,7 @@ export default function StageMemory({ onComplete }: StageProps) {
               key={idx}
               onClick={() => handleCellClick(idx)}
               className={`w-13 h-13 sm:w-16 sm:h-16 border-2 transition-all duration-100 ${cellStyle}`}
-              style={{ width: 'clamp(50px, 7vw, 68px)', height: 'clamp(50px, 7vw, 68px)' }}
+              style={{ width: 'clamp(50px, 6vw, 84px)', height: 'clamp(50px, 6vw, 84px)' }}
               whileTap={isRecall ? { scale: 0.9 } : {}}
             >
               {isMemorize && isTarget && (

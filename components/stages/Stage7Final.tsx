@@ -222,8 +222,8 @@ export default function Stage7Final({ onComplete }: StageProps) {
 
       {/* CCTV Monitor frame */}
       <div className="relative border-4 border-green-800 bg-black overflow-hidden pt-8"
-           style={{
-             width: 'min(1320px, 96vw, calc((100vh - 190px) * 16 / 9))',
+          style={{
+            width: 'min(1560px, 96vw, calc((100vh - 190px) * 16 / 9))',
              aspectRatio: '16/9',
              boxShadow: '0 0 30px rgba(0,255,65,0.2), inset 0 0 20px rgba(0,0,0,0.8)',
            }}>

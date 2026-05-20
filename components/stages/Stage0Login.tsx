@@ -168,7 +168,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
         )}
       </AnimatePresence>
 
-      <div className="tablet-panel max-w-5xl space-y-6">
+      <div className="tablet-panel max-w-none space-y-6">
         {/* Header */}
         <StageHeader
           badge="STAGE // SYSTEM ACCESS"
@@ -237,7 +237,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                         tabIndex={-1}
                         aria-label={`PIN digit ${i + 1}`}
                         className={`
-                          w-16 h-16 text-center text-3xl font-bold
+                          h-[clamp(56px,5vw,82px)] w-[clamp(56px,5vw,82px)] text-center text-[clamp(1.5rem,2vw,2.25rem)] font-bold
                           border-2 bg-black/80 outline-none
                           transition-all duration-150 cursor-text
                           ${status === 'error'
@@ -255,7 +255,7 @@ export default function Stage0Login({ onComplete }: StageProps) {
                 </div>
 
                 {/* Keypad */}
-                <div className="grid grid-cols-3 gap-2.5 w-56">
+                <div className="grid grid-cols-3 gap-2.5 w-[clamp(248px,24vw,360px)]">
                   {KEYPAD.map((key, i) => (
                     <motion.button
                       key={i}

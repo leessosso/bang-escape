@@ -99,7 +99,7 @@ export default function Stage3Morse({ onComplete }: StageProps) {
       />
 
       {/* Morse display */}
-      <div className="tablet-panel max-w-5xl border border-green-900 bg-black/70 p-8 rounded">
+      <div className="tablet-panel max-w-none border border-green-900 bg-black/70 p-8 rounded">
         <p className="text-green-600 tablet-label mb-6">{'// INCOMING TRANSMISSION'}</p>
         <div className="flex items-end justify-center gap-10 flex-wrap">
           {PER_LETTER.map(({ code, start }, li) => (
@@ -122,7 +122,7 @@ export default function Stage3Morse({ onComplete }: StageProps) {
       </div>
 
       {/* Input */}
-      <div className="tablet-panel max-w-5xl space-y-3">
+      <div className="tablet-panel max-w-none space-y-3">
         <AnimatePresence>
           {status === 'error' && (
             <motion.p

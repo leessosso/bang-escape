@@ -41,7 +41,7 @@ export default function MissionComplete({ onNextTeam }: MissionCompleteProps) {
           transition={{ delay: 0.2 }}
         >
           <p className="tablet-label text-green-600 mb-2">{'// OPERATION COMPLETE'}</p>
-          <h1 className="text-4xl sm:text-5xl font-black tracking-[0.18em] text-glow animate-glitch">
+          <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black tracking-[0.18em] text-glow animate-glitch">
             MISSION COMPLETE
           </h1>
         </motion.div>

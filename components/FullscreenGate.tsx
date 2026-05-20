@@ -48,18 +48,18 @@ export default function FullscreenGate() {
     <div className="fixed inset-0 z-[20000] flex items-center justify-center bg-black/95 px-6">
       <div className="tablet-dialog border-2 border-green-500 bg-black/90 p-7 text-center shadow-[0_0_32px_rgba(0,255,65,0.18)]">
         <p className="mb-2 tablet-label text-green-600">
-          {'// TABLET DISPLAY MODE'}
+          {'// PRESENTATION DISPLAY MODE'}
         </p>
         <h1 className="text-3xl font-black tracking-[0.2em] text-green-400 text-glow sm:text-4xl">
           전체화면으로 시작
         </h1>
         <p className="mt-4 text-base leading-8 tracking-[0.1em] text-green-500">
-          태블릿 Chrome에서 주소창을 숨기고 퍼즐 화면을 크게 보여주려면 아래 버튼을 눌러주세요.
+          맥북/외부 모니터 복제 화면에서 UI를 가장 크게 보려면 전체화면으로 시작하세요.
         </p>
 
         {!isSupported && (
           <p className="mt-4 border border-yellow-700 bg-yellow-950/30 px-4 py-3 text-sm leading-7 tracking-[0.1em] text-yellow-300">
-            이 브라우저는 전체화면 API를 지원하지 않습니다. Chrome 메뉴에서 홈 화면에 추가한 뒤 실행하면 더 넓게 볼 수 있습니다.
+            이 브라우저는 전체화면 API를 지원하지 않습니다. 브라우저 메뉴의 전체화면 기능(F11 또는 View 옵션)을 사용하세요.
           </p>
         )}
 

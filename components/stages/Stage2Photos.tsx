@@ -95,7 +95,7 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
 
       {/* Photo card */}
       <div
-        className={`w-38 h-46 sm:w-46 sm:h-58 border-2 overflow-hidden rounded
+        className={`border-2 overflow-hidden rounded
                     ${isDragging
                       ? 'border-green-300 shadow-lg shadow-green-400/30'
                       : isSolved
@@ -103,6 +103,7 @@ function SortablePhoto({ id, index, photoNum, isSolved }: SortablePhotoProps) {
                         : 'border-green-800 hover:border-green-600'
                     }
                     transition-all duration-200 bg-black`}
+        style={{ width: 'clamp(150px, 14vw, 230px)', height: 'clamp(190px, 18vw, 290px)' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -195,7 +196,7 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
       />
 
       {/* Mission text */}
-      <div className="tablet-panel max-w-4xl border border-green-900 bg-black/60 px-6 py-3.5 text-base text-green-500 tracking-[0.08em] text-center">
+      <div className="tablet-panel max-w-none border border-green-900 bg-black/60 px-6 py-3.5 text-base text-green-500 tracking-[0.08em] text-center">
         <ImageIcon size={14} className="inline mr-2" />
         MISSION: Restore the chronological order of the surveillance footage
       </div>

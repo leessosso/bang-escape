@@ -254,7 +254,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
         </div>
       </div>
 
-      <div className="tablet-stage-shell h-[68vh] max-h-[620px] min-h-[500px] border border-green-900 bg-black/70 p-3.5 grid lg:grid-cols-[1.1fr_0.9fr] gap-3 overflow-hidden">
+      <div className="tablet-stage-shell h-[clamp(430px,72vh,780px)] border border-green-900 bg-black/70 p-3.5 grid lg:grid-cols-[1.1fr_0.9fr] gap-3 overflow-hidden">
         <div className="min-h-0 flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <p className="text-green-400 text-base tracking-[0.1em] font-bold">{round.title}</p>

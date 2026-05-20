@@ -79,7 +79,7 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
           className="text-center space-y-2 shrink-0"
         >
           <p className="tablet-label text-green-600">{meta.en}</p>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-[0.2em] text-glow text-green-400">
+          <h2 className="text-2xl sm:text-3xl xl:text-4xl font-black tracking-[0.2em] text-glow text-green-400">
             {meta.ko}
           </h2>
           <p className="text-green-600 tablet-fine-text">{meta.afterStageLabel}</p>
@@ -102,9 +102,9 @@ export default function ClueReveal({ milestone, onContinue }: ClueRevealProps) {
               alt={meta.imageAlt}
               width={meta.imageWidth}
               height={meta.imageHeight}
-              sizes="(max-width: 768px) 96vw, 896px"
+              sizes="(max-width: 768px) 96vw, 1100px"
               priority
-              className="mx-auto max-h-[74vh] w-auto max-w-full rounded object-contain sm:max-h-[76vh]"
+              className="mx-auto max-h-[78vh] w-auto max-w-full rounded object-contain sm:max-h-[80vh]"
             />
             <p className="mt-3 text-sm text-green-700 font-mono tracking-[0.08em] tabular-nums">
               SLOT_INDEX · {milestone === 1 ? '01' : '02'}

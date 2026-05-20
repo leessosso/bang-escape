@@ -183,8 +183,8 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
                                 : 'border-green-950 bg-black hover:border-green-800'
                             }`}
                 style={{
-                  width: 'clamp(52px, 8vw, 72px)',
-                  height: 'clamp(52px, 8vw, 72px)',
+                  width: 'clamp(52px, 7vw, 84px)',
+                  height: 'clamp(52px, 7vw, 84px)',
                   boxShadow: isPath ? '0 0 6px rgba(0,255,65,0.25)' : undefined,
                 }}
                 whileTap={{ scale: 0.9 }}

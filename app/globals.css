@@ -244,25 +244,33 @@ input {
   color: #000;
 }
 
-/* ─── Tablet-wide shared layout & typography ─── */
+/* ─── Shared stage layout & typography (desktop/projector friendly) ─── */
 .tablet-stage-shell {
-  width: min(96vw, 1320px);
+  width: min(96vw, 1560px);
 }
 
 .tablet-panel {
-  width: min(94vw, 1120px);
+  width: min(94vw, 1360px);
 }
 
 .tablet-dialog {
-  width: min(92vw, 980px);
+  width: min(92vw, 1180px);
 }
 
 .tablet-label {
-  font-size: 0.8rem;
+  font-size: clamp(0.78rem, 0.68rem + 0.22vw, 0.98rem);
   letter-spacing: 0.2em;
 }
 
 .tablet-fine-text {
-  font-size: 0.9rem;
+  font-size: clamp(0.86rem, 0.76rem + 0.24vw, 1.02rem);
   letter-spacing: 0.12em;
+}
+
+/* FHD mirror output readability tuning */
+@media (min-width: 1600px) and (min-height: 880px) {
+  html,
+  body {
+    font-size: 17px;
+  }
 }

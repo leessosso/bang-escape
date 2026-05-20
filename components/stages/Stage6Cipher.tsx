@@ -47,15 +47,19 @@ export default function StageCipher({ onComplete }: StageProps) {
       />
 
       {/* Encrypted message */}
-      <div className="tablet-panel max-w-4xl text-center space-y-4">
+      <div className="tablet-panel max-w-none text-center space-y-4">
         <p className="text-green-600 tablet-label">{'// ENCRYPTED MESSAGE'}</p>
         <div className="flex gap-2 justify-center sm:gap-4">
           {CIPHER_ENCRYPTED.split('').map((char, i) => (
             <div
               key={i}
-              className="flex h-16 w-12 items-center justify-center border-2 border-green-700 sm:h-20 sm:w-16 md:h-22 md:w-18
+              className="flex items-center justify-center border-2 border-green-700
                          text-4xl font-black text-green-400 tracking-wider bg-black/60"
-              style={{ boxShadow: '0 0 8px rgba(0,255,65,0.1)' }}
+              style={{
+                width: 'clamp(52px, 4.6vw, 78px)',
+                height: 'clamp(68px, 6.6vw, 110px)',
+                boxShadow: '0 0 8px rgba(0,255,65,0.1)',
+              }}
             >
               {char}
             </div>
@@ -67,7 +71,7 @@ export default function StageCipher({ onComplete }: StageProps) {
       </div>
 
       {/* Input */}
-      <div className="tablet-panel max-w-4xl space-y-3">
+      <div className="tablet-panel max-w-none space-y-3">
         <AnimatePresence>
           {status === 'error' && (
             <motion.p
