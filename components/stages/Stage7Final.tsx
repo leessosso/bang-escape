@@ -7,7 +7,7 @@ import StageHeader from './StageHeader';
 
 const NOISE_CHARS = '???????????????????????';
 const LOADING_DOT_INDICES = [0, 1, 2, 3, 4];
-const FINAL_CCTV_VIDEO_ID = 'ThViJ6Xh5OE';
+const FINAL_CCTV_VIDEO_ID = 'YG0AJ8ZKKMs';
 const STATIC_DURATION_MS = 2500;
 
 type YoutubePlayerLike = {
@@ -141,7 +141,6 @@ interface StageProps {
 
 export default function Stage7Final({ onComplete }: StageProps) {
   const [phase, setPhase] = useState<'cctv' | 'reveal'>('cctv');
-  const [showAudioPrompt, setShowAudioPrompt] = useState(false);
   const playerMountRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YoutubePlayerLike | null>(null);
   const onCompleteRef = useRef(onComplete);
@@ -225,7 +224,7 @@ export default function Stage7Final({ onComplete }: StageProps) {
           style={{
             width: 'min(1560px, 96vw, calc((100vh - 190px) * 16 / 9))',
              aspectRatio: '16/9',
-             boxShadow: '0 0 30px rgba(0,255,65,0.2), inset 0 0 20px rgba(0,0,0,0.8)',
+             boxShadow: '0 0 16px rgba(0,0,0,0.35)',
            }}>
 
         {/* Monitor header bar */}
@@ -239,34 +238,6 @@ export default function Stage7Final({ onComplete }: StageProps) {
         {/* Video layer: loads & plays under static so reveal shows ongoing playback */}
         <div className="absolute inset-x-0 bottom-0 top-8 z-5 overflow-hidden bg-black">
           <div ref={playerMountRef} className="absolute inset-0 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:h-full [&_iframe]:w-full" />
-          <div className="absolute inset-0 bg-green-950/20 mix-blend-screen pointer-events-none" />
-          <div
-            className="absolute inset-0 opacity-35 pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.85) 100%)',
-            }}
-          />
-          <AnimatePresence>
-            {phase === 'reveal' && showAudioPrompt && (
-              <motion.button
-                key="audio-prompt"
-                type="button"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => {
-                  playerRef.current?.unMute();
-                  playerRef.current?.setVolume(100);
-                  setShowAudioPrompt(false);
-                }}
-                className="absolute bottom-4 left-1/2 z-30 -translate-x-1/2 border border-green-500 bg-black/80 px-4 py-2
-                           text-sm font-bold tracking-[0.14em] text-green-400 text-glow
-                           transition-colors hover:bg-green-500 hover:text-black"
-              >
-                ENABLE AUDIO
-              </motion.button>
-            )}
-          </AnimatePresence>
         </div>
 
         {/* Phase: CCTV static noise (covers video until STATIC_DURATION_MS) */}
@@ -310,18 +281,13 @@ export default function Stage7Final({ onComplete }: StageProps) {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <p className="relative z-10 text-green-400 text-base tracking-[0.12em] drop-shadow-[0_0_8px_rgba(0,0,0,1)]">
+              {/* <p className="relative z-10 text-green-400 text-base tracking-[0.12em] drop-shadow-[0_0_8px_rgba(0,0,0,1)]">
                 RESTORED CCTV SIGNAL
-              </p>
+              </p> */}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Scanline overlay on monitor */}
-        <div className="absolute inset-0 pointer-events-none z-10"
-             style={{
-               background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 3px)'
-             }} />
       </div>
     </div>
   );
