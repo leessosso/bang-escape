@@ -8,7 +8,7 @@ import StageHeader from './StageHeader';
 const NOISE_CHARS = '???????????????????????';
 const LOADING_DOT_INDICES = [0, 1, 2, 3, 4];
 const FINAL_CCTV_VIDEO_ID = 'YG0AJ8ZKKMs';
-const STATIC_DURATION_MS = 2500;
+const STATIC_DURATION_MS = 1300;
 
 type YoutubePlayerLike = {
   destroy: () => void;
