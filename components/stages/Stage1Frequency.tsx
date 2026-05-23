@@ -19,10 +19,8 @@ interface Choice {
 
 interface SlotConfig {
   key: SlotKey;
-  line: number;
   prompt: string;
   correctId: string;
-  hint: string;
   choices: Choice[];
 }
 
@@ -53,10 +51,8 @@ const ROUNDS: RoundData[] = [
     slots: [
       {
         key: 'A',
-        line: 4,
         prompt: '조건식을 고르세요',
         correctId: 'a2',
-        hint: '홀수 판별은 2로 나눴을 때 나머지를 봅니다.',
         choices: [
           { id: 'a1', label: '=== 0' },
           { id: 'a2', label: '% 2 !== 0' },
@@ -66,10 +62,8 @@ const ROUNDS: RoundData[] = [
       },
       {
         key: 'B',
-        line: 8,
         prompt: '리턴 값을 고르세요',
         correctId: 'b2',
-        hint: '반복문에서 누적한 변수 이름을 그대로 반환해야 합니다.',
         choices: [
           { id: 'b1', label: 'nums' },
           { id: 'b2', label: 'total' },
@@ -92,10 +86,8 @@ const ROUNDS: RoundData[] = [
     slots: [
       {
         key: 'A',
-        line: 2,
         prompt: '길이 비교 연산자를 고르세요',
         correctId: 'a3',
-        hint: '8보다 짧으면 false를 리턴해야 합니다.',
         choices: [
           { id: 'a1', label: '>= 8' },
           { id: 'a2', label: '=== 8' },
@@ -105,10 +97,8 @@ const ROUNDS: RoundData[] = [
       },
       {
         key: 'B',
-        line: 3,
         prompt: 'endsWith 인자를 고르세요',
         correctId: 'b4',
-        hint: '문자열 한 글자를 검사합니다.',
         choices: [
           { id: 'b1', label: "'?'" },
           { id: 'b2', label: "'#'" },
@@ -135,10 +125,8 @@ const ROUNDS: RoundData[] = [
     slots: [
       {
         key: 'A',
-        line: 3,
         prompt: 'filter 조건 필드를 고르세요',
         correctId: 'a1',
-        hint: '불리언 필드명을 그대로 참조하면 됩니다.',
         choices: [
           { id: 'a1', label: 'active' },
           { id: 'a2', label: 'name' },
@@ -148,10 +136,8 @@ const ROUNDS: RoundData[] = [
       },
       {
         key: 'B',
-        line: 4,
         prompt: 'map 반환 필드를 고르세요',
         correctId: 'b3',
-        hint: '문제에서 요구한 결과는 이름 목록입니다.',
         choices: [
           { id: 'b1', label: 'id' },
           { id: 'b2', label: 'active' },
@@ -186,13 +172,6 @@ export default function StageFrequency({ onComplete }: StageProps) {
     }),
     [round, answers.A, answers.B]
   );
-
-  const wrongHints = useMemo(() => {
-    if (result !== 'wrong') return [];
-    return round.slots
-      .filter((slot) => answers[slot.key] !== slot.correctId)
-      .map((slot) => `Line ${slot.line}: ${slot.hint}`);
-  }, [result, round, answers]);
 
   const handleSelect = (key: SlotKey, value: string) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
@@ -234,7 +213,8 @@ export default function StageFrequency({ onComplete }: StageProps) {
     <div className="flex flex-col items-center justify-center h-full max-h-full overflow-hidden px-4 py-3 gap-3">
       <StageHeader
         badge="STAGE // DEBUG CONSOLE"
-        icon={<Bug size={24} />}
+        icon={<Bug />}
+        trailingIcon={<CheckCircle />}
         title="PATCH THE BUG"
         subtitle={<>&gt; 각 라운드의 버그 2개를 수정하고 <span className="text-green-400">RUN TEST</span>로 통과하라</>}
       />
@@ -250,7 +230,7 @@ export default function StageFrequency({ onComplete }: StageProps) {
             <span className="text-amber-300 font-semibold">B</span> 선택
           </span>
           <span>2) RUN TEST</span>
-          <span>3) 실패 시 줄 번호 힌트 확인</span>
+          <span>3) 통과하면 다음 라운드</span>
         </div>
       </div>
 
@@ -394,16 +374,9 @@ export default function StageFrequency({ onComplete }: StageProps) {
                     className="flex flex-col items-center gap-1.5"
                   >
                     {result === 'wrong' && (
-                      <div className="space-y-1">
-                        <p className="text-red-300 text-base tracking-widest font-bold text-center">
-                          ✗ TEST FAILED (ATTEMPT {attempts})
-                        </p>
-                        {wrongHints.map((hint) => (
-                          <p key={hint} className="text-yellow-300 text-sm tracking-[0.08em] text-center">
-                            HINT: {hint}
-                          </p>
-                        ))}
-                      </div>
+                      <p className="text-red-300 text-base tracking-widest font-bold text-center">
+                        ✗ TEST FAILED (ATTEMPT {attempts})
+                      </p>
                     )}
                     <button
                       onClick={runTest}

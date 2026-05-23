@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Terminal } from 'lucide-react';
+import { KeyRound, Shield, Terminal } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { LOGIN_PASSWORD } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
@@ -172,7 +172,8 @@ export default function Stage0Login({ onComplete }: StageProps) {
         {/* Header */}
         <StageHeader
           badge="STAGE // SYSTEM ACCESS"
-          icon={<Shield size={28} />}
+          icon={<Shield />}
+          trailingIcon={<KeyRound />}
           title="SECURITY AUTHENTICATION"
           subtitle={<>&gt; 4자리 인증 코드를 입력하여 <span className="text-green-400">시스템</span>에 접근하라</>}
         />

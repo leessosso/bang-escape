@@ -19,7 +19,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { GripHorizontal, CheckCircle, ChevronRight, Image as ImageIcon, Images } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { PHOTO_COUNT, CORRECT_PHOTO_ORDER } from '@/lib/constants';
 import { withBasePath } from '@/lib/assetPath';
@@ -190,7 +190,8 @@ export default function Stage2Photos({ onComplete, savedOrder, onOrderChange }: 
       {/* Header */}
       <StageHeader
         badge="STAGE // DATA RECOVERY"
-        icon={<ImageIcon size={28} />}
+        icon={<ImageIcon />}
+        trailingIcon={<Images />}
         title="PHOTO TIMELINE"
         subtitle={<>&gt; 사진을 <span className="text-green-400">과거 → 최신</span> 순으로 드래그하여 정렬하라</>}
       />

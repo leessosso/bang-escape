@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, ChevronRight, Zap } from 'lucide-react';
+import { CheckCircle, ChevronRight, PlugZap, Zap } from 'lucide-react';
 import StageHeader from './StageHeader';
 import {
   CIRCUIT_SOLUTION,
@@ -132,7 +132,8 @@ export default function Stage5Circuit({ onComplete, savedRotations, onRotationsC
       {/* Header */}
       <StageHeader
         badge="STAGE // CIRCUIT RESTORE"
-        icon={<Zap size={28} />}
+        icon={<Zap />}
+        trailingIcon={<PlugZap />}
         title="ALGORITHM CIRCUIT"
         subtitle={<>&gt; 타일을 클릭해 90° 회전 — <span className="text-green-400">입구 → 출구</span>를 연결하라</>}
       />

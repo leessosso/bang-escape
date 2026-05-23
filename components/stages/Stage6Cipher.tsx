@@ -41,9 +41,10 @@ export default function StageCipher({ onComplete }: StageProps) {
       {/* Header */}
       <StageHeader
         badge="STAGE // ENCRYPTION BYPASS"
-        icon={<><Lock size={26} /><Unlock size={26} /></>}
+        icon={<Lock />}
+        trailingIcon={<Unlock />}
         title="CAESAR CIPHER"
-        subtitle={<>&gt; 암호화된 메시지를 <span className="text-green-400">MOVE {CIPHER_MOVE}</span>로 복호화하라</>}
+        subtitle={<>&gt; 암호화된 메시지를 "<span className="text-yellow-400">MOVE {CIPHER_MOVE}</span>"으로 복호화하라</>}
       />
 
       {/* Encrypted message */}

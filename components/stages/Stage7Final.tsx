@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tv } from 'lucide-react';
+import { Play, Tv } from 'lucide-react';
 import StageHeader from './StageHeader';
 
 const NOISE_CHARS = '???????????????????????';
 const LOADING_DOT_INDICES = [0, 1, 2, 3, 4];
-const FINAL_CCTV_VIDEO_ID = 'YG0AJ8ZKKMs';
+const FINAL_CCTV_VIDEO_ID = 'NL__LCwVyas';
 const STATIC_DURATION_MS = 1300;
 
 type YoutubePlayerLike = {
@@ -215,7 +215,8 @@ export default function Stage7Final({ onComplete }: StageProps) {
       {/* Header */}
       <StageHeader
         badge="STAGE // FINAL RECOVERY"
-        icon={<Tv size={28} />}
+        icon={<Tv />}
+        trailingIcon={<Play />}
         title="CCTV RESTORATION"
       />
 

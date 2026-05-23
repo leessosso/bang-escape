@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, CheckCircle, RotateCcw } from 'lucide-react';
+import { Brain, CheckCircle, Grid3x3, RotateCcw } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { MEMORY_GRID_SIZE, MEMORY_ROUNDS, MEMORY_ROUND2_PHASES, MEMORY_ROUND3_PHASES, MEMORY_SHOW_MS, MEMORY_SHOW_MS_R3 } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
@@ -168,7 +168,8 @@ export default function StageMemory({ onComplete }: StageProps) {
       {/* Header */}
       <StageHeader
         badge="STAGE // MEMORY INTEGRITY CHECK"
-        icon={<Brain size={28} />}
+        icon={<Brain />}
+        trailingIcon={<Grid3x3 />}
         title="MEMORY MATRIX"
         subtitle={<>&gt; 패턴을 <span className="text-green-400">기억</span>하고 정확히 <span className="text-green-400">입력</span>하라</>}
       />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Radio, CheckCircle } from 'lucide-react';
+import { AudioLines, Radio, CheckCircle } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { MORSE_ANSWER, MORSE_CODE } from '@/lib/constants';
 import { playSound } from '@/lib/sounds';
@@ -93,7 +93,8 @@ export default function Stage3Morse({ onComplete }: StageProps) {
       {/* Header */}
       <StageHeader
         badge="STAGE // SIGNAL INTERCEPT"
-        icon={<Radio size={28} className="animate-pulse" />}
+        icon={<Radio className="animate-pulse" />}
+        trailingIcon={<AudioLines />}
         title="MORSE DECODE"
         subtitle={<>&gt; 수신된 모스 신호를 해독하여 <span className="text-green-400">영단어</span>를 입력하라</>}
       />
