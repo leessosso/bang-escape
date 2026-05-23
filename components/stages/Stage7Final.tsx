@@ -4,64 +4,14 @@ import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } fr
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Tv } from 'lucide-react';
 import StageHeader from './StageHeader';
+import { VIDEOS } from '@/lib/constants';
+import { withBasePath } from '@/lib/assetPath';
+import { ensureMediaReady } from '@/lib/sounds';
 
 const NOISE_CHARS = '???????????????????????';
 const LOADING_DOT_INDICES = [0, 1, 2, 3, 4];
-const FINAL_CCTV_VIDEO_ID = 'NL__LCwVyas';
-const STATIC_DURATION_MS = 1300;
-
-type YoutubePlayerLike = {
-  destroy: () => void;
-  unMute: () => void;
-  mute: () => void;
-  setVolume: (v: number) => void;
-};
-
-declare global {
-  interface Window {
-    YT?: {
-      Player: new (
-        container: HTMLElement | string,
-        options: Record<string, unknown>,
-      ) => YoutubePlayerLike;
-      PlayerState: { ENDED: number };
-    };
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
-
-function ensureYouTubeIframeApi(): Promise<void> {
-  if (typeof window === 'undefined') return Promise.resolve();
-
-  if (window.YT?.Player) return Promise.resolve();
-
-  type WindowWithYtPromise = Window & { __bangEscapeYtApiPromise?: Promise<void> };
-  const w = window as WindowWithYtPromise;
-
-  if (!w.__bangEscapeYtApiPromise) {
-    w.__bangEscapeYtApiPromise = new Promise<void>((resolve) => {
-      const prev = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        prev?.();
-        resolve();
-      };
-
-      const existing = document.querySelector('script[src*="youtube.com/iframe_api"]');
-      if (!existing) {
-        const tag = document.createElement('script');
-        tag.src = 'https://www.youtube.com/iframe_api';
-        tag.async = true;
-        document.head.appendChild(tag);
-      }
-
-      queueMicrotask(() => {
-        if (window.YT?.Player) resolve();
-      });
-    });
-  }
-
-  return w.__bangEscapeYtApiPromise;
-}
+const STATIC_DURATION_MS = 2500;
+const FINAL_CCTV_SRC = withBasePath(VIDEOS.finalCctv);
 
 function createNoiseRows(cols: number, rows: number): string[] {
   return Array.from({ length: rows }, (_, row) => (
@@ -141,8 +91,7 @@ interface StageProps {
 
 export default function Stage7Final({ onComplete }: StageProps) {
   const [phase, setPhase] = useState<'cctv' | 'reveal'>('cctv');
-  const playerMountRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<YoutubePlayerLike | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const onCompleteRef = useRef(onComplete);
   const hasEndedRef = useRef(false);
 
@@ -162,53 +111,26 @@ export default function Stage7Final({ onComplete }: StageProps) {
   }, []);
 
   useEffect(() => {
-    const mountEl = playerMountRef.current;
-    if (!mountEl) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    let cancelled = false;
+    const startPlayback = () => {
+      ensureMediaReady();
+      video.muted = false;
+      video.volume = 1;
+      void video.play();
+    };
 
-    ensureYouTubeIframeApi().then(() => {
-      if (cancelled || !mountEl || !window.YT?.Player) return;
-
-      const player = new window.YT.Player(mountEl, {
-        width: '100%',
-        height: '100%',
-        videoId: FINAL_CCTV_VIDEO_ID,
-        playerVars: {
-          autoplay: 1,
-          mute: 0,
-          controls: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          rel: 0,
-        },
-        events: {
-          onReady: () => {
-            // Try to start with audio enabled; browser policy may still block this.
-            player.unMute();
-            player.setVolume(100);
-          },
-          onStateChange: (ev: { data: number }) => {
-            if (ev.data === window.YT!.PlayerState.ENDED) {
-              handleVideoEnded();
-            }
-          },
-        },
-      });
-
-      playerRef.current = player;
-    });
+    if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      startPlayback();
+    } else {
+      video.addEventListener('canplay', startPlayback, { once: true });
+    }
 
     return () => {
-      cancelled = true;
-      try {
-        playerRef.current?.destroy();
-      } catch {
-        /* noop */
-      }
-      playerRef.current = null;
+      video.removeEventListener('canplay', startPlayback);
     };
-  }, [handleVideoEnded]);
+  }, []);
 
   return (
     <div className="tablet-stage-shell mx-auto flex flex-col items-center justify-center h-full px-4 gap-5 sm:gap-6">
@@ -238,7 +160,21 @@ export default function Stage7Final({ onComplete }: StageProps) {
 
         {/* Video layer: loads & plays under static so reveal shows ongoing playback */}
         <div className="absolute inset-x-0 bottom-0 top-8 z-5 overflow-hidden bg-black">
-          <div ref={playerMountRef} className="absolute inset-0 [&_iframe]:absolute [&_iframe]:inset-0 [&_iframe]:h-full [&_iframe]:w-full" />
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full object-cover"
+            src={FINAL_CCTV_SRC}
+            playsInline
+            preload="auto"
+            onEnded={handleVideoEnded}
+          />
+          <div className="absolute inset-0 bg-green-950/20 mix-blend-screen pointer-events-none" />
+          <div
+            className="absolute inset-0 opacity-35 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.85) 100%)',
+            }}
+          />
         </div>
 
         {/* Phase: CCTV static noise (covers video until STATIC_DURATION_MS) */}

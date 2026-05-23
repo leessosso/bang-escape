@@ -11,6 +11,13 @@ function getAudioContext(): AudioContext | null {
   return audioContext;
 }
 
+export function ensureMediaReady(): void {
+  const ctx = getAudioContext();
+  if (ctx?.state === 'suspended') {
+    void ctx.resume();
+  }
+}
+
 // 파일이 없을 때를 위한 Web Audio API 폴백 비프음
 function playBeepFallback(freq = 440, duration = 0.1, type: OscillatorType = 'square') {
   const ctx = getAudioContext();

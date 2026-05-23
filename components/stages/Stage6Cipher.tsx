@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Unlock, CheckCircle } from 'lucide-react';
 import StageHeader from './StageHeader';
 import { CIPHER_MOVE, CIPHER_ANSWER, CIPHER_ENCRYPTED } from '@/lib/constants';
+import { primeFinalCctvPlayback } from '@/lib/finalCctvVideo';
 import { playSound } from '@/lib/sounds';
 
 interface StageProps {
@@ -27,6 +28,7 @@ export default function StageCipher({ onComplete }: StageProps) {
     if (input.trim().toUpperCase() === CIPHER_ANSWER) {
       setStatus('success');
       playSound.unlock();
+      primeFinalCctvPlayback();
       setTimeout(onComplete, 1600);
     } else {
       setStatus('error');

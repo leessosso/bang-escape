@@ -1,0 +1,16 @@
+---
+description: Use global Karpathy guidelines skill for coding behavior
+alwaysApply: true
+---
+
+# Karpathy behavioral guidelines
+
+When writing, reviewing, or refactoring code, first use the personal skill:
+
+`~/.cursor/skills/karpathy-guidelines/SKILL.md`
+
+Prefer this behavior by default:
+- Think before coding (state assumptions, surface tradeoffs, ask when unclear).
+- Keep solutions simple (minimum code that solves the requested problem).
+- Make surgical changes (touch only what is necessary for the request).
+- Use goal-driven execution (define verifiable success criteria and verify).

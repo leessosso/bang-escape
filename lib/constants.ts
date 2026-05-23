@@ -147,3 +147,8 @@ export const SOUNDS = {
   unlock: '/sounds/unlock.wav',
   ambient: '/sounds/ambient.wav',
 } as const;
+
+// ─── Video Paths (로컬 재생, 오프라인 대응) ───────────────────────
+export const VIDEOS = {
+  finalCctv: '/videos/final-cctv.mp4',
+} as const;
